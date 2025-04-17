@@ -17,7 +17,8 @@ If you are developing a production application, we recommend using TypeScript wi
 ---
 
 ## 📸 项目预览
-
+注册页：
+![alt text](image.png)
 首页界面（含侧边栏）：
 
 ![Home Preview](./src/assets/home.png)
@@ -34,11 +35,24 @@ If you are developing a production application, we recommend using TypeScript wi
 - 🎯 Node.js（运行依赖）
 
 ---
-
 ## 📁 目录结构
 
-├── src/ │ ├── assets/ # 项目资源文件（地图图、头像图） │ ├── App.jsx # 路由入口 │ ├── Login.jsx # 登录页面 │ ├── Home.jsx # 主地图页面 │ ├── Sidebar.jsx # 侧边栏组件 │ └── main.jsx # React 挂载入口 ├── electron/ # Electron 主进程文件（可选） ├── dist/ # 构建输出目录（自动生成） ├── public/ # 静态资源 ├── package.json # 项目配置 ├── vite.config.js # Vite 配置 └── README.md
-
+```text
+Lifelong-Journey/
+├── src/
+│   ├── assets/         # 项目资源文件（地图图、头像图）
+│   ├── App.jsx         # 路由入口
+│   ├── Login.jsx       # 登录页面
+│   ├── Home.jsx        # 主地图页面
+│   ├── Sidebar.jsx     # 侧边栏组件
+│   └── main.jsx        # React 挂载入口
+├── electron/           # Electron 主进程文件（可选）
+├── dist/               # 构建输出目录（自动生成）
+├── public/             # 静态资源
+├── package.json        # 项目配置
+├── vite.config.js      # Vite 配置
+└── README.md           # 项目说明文档
+```
 
 
 ---
