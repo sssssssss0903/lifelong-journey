@@ -1,69 +1,58 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
+import './styles.css'; // ✅ 引入自定义 CSS
 
 export default function Login() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   function handleLogin() {
-    // 可加入账号密码校验等逻辑
-    navigate('/home') // ✅ 正确跳转
+    // 这里可以加登录逻辑
+    navigate('/home');
   }
 
   return (
     <div
-      className="h-screen w-screen bg-cover bg-center relative"
+      className="login-bg"
       style={{ backgroundImage: "url('/src/assets/bg2.png')" }}
     >
       <img
         src="/src/assets/bg1.png"
-        className="absolute bottom-0 left-0 w-full h-full object-cover opacity-80 pointer-events-none z-0"
+        className="login-overlay"
         alt="overlay"
       />
 
-      <div className="absolute bottom-10 right-10 w-[960px] h-[540px] flex bg-white/90 rounded-xl shadow-xl overflow-hidden z-10">
-        <div className="w-1/2 p-6 flex flex-col items-center justify-center text-black">
-          <h1 className="text-xl font-bold mb-2">欢迎使用</h1>
-          <h2 className="text-md mb-4">Lifelong Journey</h2>
-          <img src="/src/assets/map.png" alt="Map" className="w-full object-contain" />
+      <div className="login-panel">
+        <div className="login-left">
+          <h1 className="login-title">欢迎使用</h1>
+          <h2 className="login-subtitle">Lifelong Journey</h2>
+          <img src="/src/assets/map.png" alt="Map" className="login-map" />
         </div>
 
-        <div className="w-[1px] bg-gray-300" />
+        <div className="login-divider" />
 
-        <div className="w-1/2 px-10 py-8 text-black flex flex-col justify-center">
-          <div className="text-right mb-8 text-base italic">
+        <div className="login-right">
+          <div className="login-slogan">
             <p>Your journey</p>
             <p>Your map</p>
           </div>
 
-          <h2 className="text-xl font-bold mb-5">登录</h2>
+          <h2 className="login-header">登录</h2>
 
-          <input
-            className="p-3 mb-4 border rounded w-full h-[50px] text-base placeholder:text-sm"
-            placeholder="请输入账号"
-          />
-          <input
-            type="password"
-            className="p-3 mb-4 border rounded w-full h-[50px] text-base placeholder:text-sm"
-            placeholder="请输入密码"
-          />
+          <input className="login-input" placeholder="请输入账号" />
+          <input type="password" className="login-input" placeholder="请输入密码" />
 
-          <label className="text-sm mb-5 flex items-center">
-            <input type="checkbox" className="mr-2" />
+          <label className="login-remember">
+            <input type="checkbox" className="login-checkbox" />
             记住密码
           </label>
 
-          <button
-            onClick={handleLogin}
-            className="bg-black text-white h-[50px] rounded w-full hover:bg-gray-800 mb-4 text-base font-semibold"
-          >
-            登录
-          </button>
+          <button className="login-button" onClick={handleLogin}>登录</button>
 
-          <div className="flex justify-between text-sm text-blue-600">
+          <div className="login-footer-links">
             <a href="#">注册账号</a>
             <a href="#">忘记密码</a>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,56 +1,62 @@
-import { useRef, useState } from 'react'
-import Sidebar from './Sidebar'
-import mapImage from './assets/map.png'
+import { useRef, useState } from 'react';
+import Sidebar from './Sidebar';
+import AddPanel from './AddPanel';
+import mapImage from './assets/map.png';
 
 export default function Home() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [addPanelOpen, setAddPanelOpen] = useState(false);
 
-  // 控制缩放倍数和缩放中心点
-  const [scale, setScale] = useState(1)
-  const [origin, setOrigin] = useState({ x: 50, y: 50 })
+  const [scale, setScale] = useState(1);
+  const [origin, setOrigin] = useState({ x: 50, y: 50 });
 
-  // 引用地图 DOM 元素
-  const mapRef = useRef()
+  const mapRef = useRef();
 
-  // 当鼠标移动到图片上时，动态计算 transform-origin
   function handleMouseMove(e) {
-    const rect = mapRef.current.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width) * 100
-    const y = ((e.clientY - rect.top) / rect.height) * 100
-    setOrigin({ x, y })       // 设置局部缩放焦点
-    setScale(1.5)             // 设置缩放倍数
+    const rect = mapRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setOrigin({ x, y });
+    setScale(1.5);
   }
 
-  // 鼠标移出地图时，缩放复原
   function resetZoom() {
-    setScale(1)
+    setScale(1);
   }
 
   return (
-    <div className="h-screen w-screen bg-[#bfbfbf] flex relative overflow-hidden">
-      {/* ✅ 左侧侧边栏（宽度更大） */}
-      <Sidebar isOpen={sidebarOpen} />
+    <div className="h-screen w-screen flex bg-[#bfbfbf] overflow-hidden relative">
+      {/* Sidebar or AddPanel (mutually exclusive) */}
+      {addPanelOpen ? (
+        <AddPanel
+          onClose={() => {
+            setAddPanelOpen(false);
+            setSidebarOpen(false);
+          }}
+        />
+      ) : sidebarOpen ? (
+        <Sidebar />
+      ) : null}
 
-      {/* ✅ 主区域 */}
-      <div
-  className={`flex-1 transition-all duration-300 ${
-    sidebarOpen ? 'ml-[360px]' : 'ml-0'
-  }`}
->
-        {/* 顶部导航按钮 */}
-        <div className="p-4">
+      {/* Main content: Map and controls */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Menu button (top-left) */}
+        <div className="p-4 fixed top-0 left-0 z-50">
           <button
-            className="text-black text-2xl"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="text-black text-2xl bg-white rounded-md p-2 shadow-md"
+            onClick={() => {
+              setSidebarOpen((prev) => !prev);
+              setAddPanelOpen(false);
+            }}
           >
             ☰
           </button>
         </div>
 
-        {/* ✅ 地图内容区域：居中、带局部缩放 */}
-        <div className="flex items-center justify-center h-[calc(100%-64px)]">
+        {/* Map area */}
+        <div className="flex items-center justify-center h-[calc(100%-64px)] mt-16">
           <div
-            className="overflow-hidden rounded-xl shadow-2xl transition-transform duration-300"
+            className="rounded-xl shadow-2xl transition-transform duration-300"
             onMouseMove={handleMouseMove}
             onMouseLeave={resetZoom}
           >
@@ -67,6 +73,19 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Red plus button (bottom-right) */}
+      <button
+  onClick={() => {
+    setAddPanelOpen(true);
+    setSidebarOpen(false);
+  }}
+  className="fixed bottom-10 right-10 bg-red-600 hover:bg-red-700 text-white text-5xl w-20 h-20 rounded-full flex items-center justify-center shadow-lg z-50"
+>
+  +
+</button>
+
+
     </div>
-  )
+  );
 }
