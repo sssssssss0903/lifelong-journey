@@ -10,52 +10,33 @@ Currently, two official plugins are available:
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-# 🌍 Lifelong Journey
+# 🧭 Lifelong Journey
 
-> 一款基于 **React + Tailwind CSS + Vite + Electron** 构建的桌面端旅程记录应用，支持用户登录、地图缩放、地点统计和数据可视化。
-
----
-
-## 📸 项目预览
-注册页：
-![alt text](image.png)
-首页界面（含侧边栏）：
-
-![Home Preview](./src/assets/home.png)
+记录你走过的每一程，绘制属于你的地图。
+![alt text](image-1.png)
 
 ---
 
-## 🚀 技术栈
-
-- ⚛️ React 18
-- ⚡ Vite 4+
-- 🎨 Tailwind CSS 3+
-- 💻 Electron（用于打包为桌面应用）
-- 🔁 React Router DOM（用于页面跳转）
-- 🎯 Node.js（运行依赖）
-
----
-## 📁 目录结构
+## 📁 项目目录结构
 
 ```text
 Lifelong-Journey/
 ├── src/
-│   ├── assets/         # 项目资源文件（地图图、头像图）
-│   ├── App.jsx         # 路由入口
-│   ├── Login.jsx       # 登录页面
-│   ├── Home.jsx        # 主地图页面
-│   ├── Sidebar.jsx     # 侧边栏组件
-│   └── main.jsx        # React 挂载入口
-├── electron/           # Electron 主进程文件（可选）
-├── dist/               # 构建输出目录（自动生成）
-├── public/             # 静态资源
-├── package.json        # 项目配置
-├── vite.config.js      # Vite 配置
+│   ├── assets/         # 静态资源（地图、头像图等）
+│   ├── App.jsx         # 路由配置入口
+│   ├── Login.jsx       # 登录页
+│   ├── Home.jsx        # 主页面（包含地图、标记功能）
+│   ├── Sidebar.jsx     # 左侧栏组件（用户信息与统计）
+│   ├── AddPanel.jsx    # 添加足迹的右侧栏面板
+│   ├── styles.css      # 全局样式文件（不使用 Tailwind）
+│   └── main.jsx        # React 渲染入口
+├── electron/
+│   └── main.cjs        # Electron 主进程入口（桌面版）
+├── public/             # 公共静态资源
+├── dist/               # 构建产物（自动生成）
+├── vite.config.js      # Vite 配置文件
+├── package.json        # 项目依赖与脚本配置
 └── README.md           # 项目说明文档
-```
-
-
----
 
 ## 📦 安装与运行
 
@@ -73,5 +54,30 @@ npm run dev
 npm run build
 ```
 🖥 打包为桌面应用
-需安装 electron 和 electron-builder，并配置 main 文件路径。
-尚未实现
+💡 本项目内含 Electron 主进程文件，可配合 electron-builder 打包为桌面客户端。
+
+步骤示意：
+```bash
+
+npm install electron electron-builder --save-dev
+```
+在 package.json 添加：
+
+```json
+
+"main": "electron/main.cjs",
+"build": {
+  "appId": "com.yourcompany.lifelong",
+  "asar": true,
+  "files": [
+    "dist",
+    "electron"
+  ]
+}
+```
+然后运行：
+
+```bash
+
+npm run build && electron .
+```
