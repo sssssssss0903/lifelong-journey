@@ -1,21 +1,35 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 # 🧭 Lifelong Journey
 
-记录你走过的每一程，绘制属于你的地图。
 ![alt text](image-1.png)
+![alt text](image-3.png)
+![alt text](image-4.png)
+![alt text](image-5.png)
 
 ---
+
+## 🧱 前端架构
+
+| 技术 | 说明 |
+|------|------|
+| **React** | 构建用户界面，采用组件化开发 |
+| **Vite** | 新一代前端构建工具，极速热更新，快速打包 |
+| **JavaScript (ES6+)** | 项目主要编程语言 |
+| **Electron** | 构建跨平台桌面应用 |
+| **HTML5 + CSS3** | 页面结构与样式 |
+| **纯 CSS（非 CSS 框架）** | 所有样式均为手写，集中在 `styles.css` 中管理 |
+| **模块化资源管理** | 使用 ES 模块方式导入本地图片等资源，如：`import avatar from './assets/avatar.png'` |
+
+---
+
+## 🖥️ 桌面端运行环境
+
+| 技术 | 说明 |
+|------|------|
+| **Electron Builder** | 打包和发布 Electron 应用 |
+| **Node.js** | Electron 应用运行环境（用于打包/开发） |
+| **npm/yarn** | 包管理工具，安装依赖和运行脚本 |
+| **Windows 10+** | 桌面客户端开发及运行环境（当前打包平台） |
 
 ## 📁 项目目录结构
 
@@ -40,7 +54,7 @@ Lifelong-Journey/
 ```
 ## 📦 安装与运行
 
-### 安装依赖
+ 安装依赖
 
 ```bash
 npm install
@@ -54,30 +68,12 @@ npm run dev
 npm run build
 ```
 🖥 打包为桌面应用
-💡 本项目内含 Electron 主进程文件，可配合 electron-builder 打包为桌面客户端。
+
+ 本项目内含 Electron 主进程文件，可配合 electron-builder 打包为桌面客户端。
 
 步骤示意：
 ```bash
 
 npm install electron electron-builder --save-dev
-```
-在 package.json 添加：
-
-```json
-
-"main": "electron/main.cjs",
-"build": {
-  "appId": "com.yourcompany.lifelong",
-  "asar": true,
-  "files": [
-    "dist",
-    "electron"
-  ]
-}
-```
-然后运行：
-
-```bash
-
-npm run build && electron .
+npm run electron:dev
 ```
