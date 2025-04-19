@@ -1,30 +1,30 @@
 import { useNavigate } from 'react-router-dom';
-import './styles.css'; // ✅ 引入自定义 CSS
+import './styles.css';
+
+// 正确引入静态资源
+import bg1 from './assets/bg1.png';
+import bg2 from './assets/bg2.png';
+import mapImg from './assets/map.png';
 
 export default function Login() {
   const navigate = useNavigate();
 
   function handleLogin() {
-    // 这里可以加登录逻辑
     navigate('/home');
   }
 
   return (
     <div
       className="login-bg"
-      style={{ backgroundImage: "url('/src/assets/bg2.png')" }}
+      style={{ backgroundImage: `url(${bg2})` }}
     >
-      <img
-        src="/src/assets/bg1.png"
-        className="login-overlay"
-        alt="overlay"
-      />
+      <img src={bg1} className="login-overlay" alt="overlay" />
 
       <div className="login-panel">
         <div className="login-left">
           <h1 className="login-title">欢迎使用</h1>
           <h2 className="login-subtitle">Lifelong Journey</h2>
-          <img src="/src/assets/map.png" alt="Map" className="login-map" />
+          <img src={mapImg} alt="Map" className="login-map" />
         </div>
 
         <div className="login-divider" />

@@ -1,11 +1,10 @@
 
 # 🧭 Lifelong Journey
-
+运行截图：
+![alt text](image.png)
 ![alt text](image-1.png)
+![alt text](image-2.png)
 ![alt text](image-3.png)
-![alt text](image-4.png)
-![alt text](image-5.png)
-
 ---
 
 ## 🧱 前端架构
@@ -42,7 +41,7 @@ Lifelong-Journey/
 │   ├── Home.jsx        # 主页面（包含地图、标记功能）
 │   ├── Sidebar.jsx     # 左侧栏组件（用户信息与统计）
 │   ├── AddPanel.jsx    # 添加足迹的右侧栏面板
-│   ├── styles.css      # 全局样式文件（不使用 Tailwind）
+│   ├── styles.css      # 全局样式文件
 │   └── main.jsx        # React 渲染入口
 ├── electron/
 │   └── main.cjs        # Electron 主进程入口（桌面版）
