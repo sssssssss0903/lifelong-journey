@@ -71,6 +71,7 @@ export default function Home() {
             style={{
               transform: `scale(${scale})`,
               transformOrigin: `${origin.x}% ${origin.y}%`,
+              minHeight:'100vh'
             }}
             onClick={handleMapClick}
             dangerouslySetInnerHTML={{ __html: chinaSvg }}
