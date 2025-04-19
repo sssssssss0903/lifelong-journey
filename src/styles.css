@@ -493,3 +493,41 @@ body {
 .zoom-controls button:hover {
   background-color: #f0f0f0;
 }
+
+.log-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.log-content {
+  flex: 1;
+  margin-right: 1rem;
+}
+
+.log-content img {
+  width: 100%;
+  margin-top: 0.5rem;
+  border-radius: 4px;
+}
+
+.delete-button {
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  height: fit-content;
+  align-self: center;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+
+.delete-button:hover {
+  background-color: #d9363e;
+}

@@ -14,51 +14,43 @@ if (!fs.existsSync(uploadDir)) {
 
 const upload = multer({ dest: uploadDir });
 
-
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  host: 'localhost',
+  user: '替换为实际mysql用户',
+  password: '替换为实际密码',
+  database: '替换为实际数据库',
 });
 
 db.connect(err => {
   if (err) throw err;
   console.log('MySQL connected!');
 });
-// 登录接口
+
+// 登录
 app.post('/api/login', (req, res) => {
-    const { username, password } = req.body;
-  
-    const sql = 'SELECT * FROM user WHERE username = ? AND password = ?';
-    db.query(sql, [username, password], (err, results) => {
-      if (err) {
-        console.error('数据库查询失败：', err);
-        return res.status(500).json({ success: false, message: '服务器错误' });
-      }
-  
-      if (results.length > 0) {
-        res.json({ success: true, message: '登录成功' , username: results[0].username });
-      } else {
-        res.json({ success: false, message: '账号或密码错误' });
-      }
-    });
+  const { username, password } = req.body;
+  const sql = 'SELECT * FROM user WHERE username = ? AND password = ?';
+  db.query(sql, [username, password], (err, results) => {
+    if (err) return res.status(500).json({ success: false, message: '服务器错误' });
+    if (results.length > 0) {
+      res.json({ success: true, message: '登录成功', username: results[0].username });
+    } else {
+      res.json({ success: false, message: '账号或密码错误' });
+    }
   });
-  
-// 注册接口
+});
+
+// 注册
 app.post('/api/register', (req, res) => {
   const { username, password } = req.body;
-
   const createUser = 'INSERT INTO user (username, password) VALUES (?, ?)';
-  db.query(createUser, [username, password], (err, result) => {
-    if (err) {
-      console.error(' 注册失败，可能用户名重复：', err);
-      return res.status(500).json({ success: false, message: '注册失败，用户名可能已存在' });
-    }
+  db.query(createUser, [username, password], (err) => {
+    if (err) return res.status(500).json({ success: false, message: '注册失败，用户名可能已存在' });
 
     const createStatsTable = `CREATE TABLE \`${username}_stats\` (
       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -77,40 +69,25 @@ app.post('/api/register', (req, res) => {
 
     db.query(createStatsTable, err => {
       if (err) {
-        console.error('创建统计表失败：', err);
-        // 回滚用户表插入
-        db.query('DELETE FROM user WHERE username = ?', [username], () => {
-          return res.status(500).json({ success: false, message: '创建统计表失败，注册已回滚' });
-        });
-        return;
+        db.query('DELETE FROM user WHERE username = ?', [username]);
+        return res.status(500).json({ success: false, message: '创建统计表失败' });
       }
 
       db.query(createLogTable, err => {
         if (err) {
-          console.error(' 创建日志表失败：', err);
-          db.query(`DROP TABLE \`${username}_stats\``, () => {
-            db.query('DELETE FROM user WHERE username = ?', [username], () => {
-              return res.status(500).json({ success: false, message: '创建日志表失败，注册已回滚' });
-            });
-          });
-          return;
+          db.query(`DROP TABLE \`${username}_stats\``);
+          db.query('DELETE FROM user WHERE username = ?', [username]);
+          return res.status(500).json({ success: false, message: '创建日志表失败' });
         }
 
         const initStats = `INSERT INTO \`${username}_stats\` (marked_count, logs_count, medals_count) VALUES (0, 0, 0)`;
         db.query(initStats, err => {
           if (err) {
-            console.error(' 插入初始统计数据失败：', err);
-            db.query(`DROP TABLE \`${username}_log\``, () => {
-              db.query(`DROP TABLE \`${username}_stats\``, () => {
-                db.query('DELETE FROM user WHERE username = ?', [username], () => {
-                  return res.status(500).json({ success: false, message: '初始化数据失败，注册已回滚' });
-                });
-              });
-            });
-            return;
+            db.query(`DROP TABLE \`${username}_log\``);
+            db.query(`DROP TABLE \`${username}_stats\``);
+            db.query('DELETE FROM user WHERE username = ?', [username]);
+            return res.status(500).json({ success: false, message: '初始化数据失败' });
           }
-
-          console.log(' 用户注册成功：', username);
           return res.json({ success: true, message: '注册成功' });
         });
       });
@@ -118,66 +95,115 @@ app.post('/api/register', (req, res) => {
   });
 });
 
-
-
+// 获取用户统计
 app.get('/api/user-stats', (req, res) => {
   const username = req.query.username;
-
-  // 简单校验避免 SQL 注入
-  if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-    return res.status(400).json({ error: '非法用户名' });
-  }
+  if (!/^[a-zA-Z0-9_]+$/.test(username)) return res.status(400).json({ error: '非法用户名' });
 
   const tableName = `${username}_stats`;
   const sql = `SELECT marked_count, logs_count, medals_count FROM \`${tableName}\``;
-
   db.query(sql, (err, results) => {
     if (err) return res.status(500).json({ error: '查询失败' });
     if (results.length === 0) return res.status(404).json({ error: '未找到数据' });
-
     res.json(results[0]);
   });
 });
 
+// 上传日志
 app.post('/api/upload-log', upload.single('image'), (req, res) => {
-  console.log('✅ 收到上传请求');
-  console.log('📦 请求体内容：', req.body);
-  console.log('🖼 图片文件：', req.file);
   const { username, location_name, content } = req.body;
+  if (!username || !location_name || !content) return res.status(400).json({ success: false, message: '缺少参数' });
 
-  if (!username || !location_name || !content) {
-    return res.status(400).json({ success: false, message: '缺少参数' });
-  }
-
-  const image_path = req.file ? `/uploads/${req.file.filename}` : null;
+  const image_path = req.file ? `http://localhost:3001/uploads/${req.file.filename}` : null;
   const logTable = `${username}_log`;
   const statsTable = `${username}_stats`;
 
-  // 检查是否为新地点
   const checkLocationSQL = `SELECT COUNT(*) as count FROM \`${logTable}\` WHERE location_name = ?`;
-
   db.query(checkLocationSQL, [location_name], (err, results) => {
     if (err) return res.status(500).json({ success: false, message: '查询地点失败' });
 
     const isNewLocation = results[0].count === 0;
-
-    // 插入日志
     const insertSQL = `INSERT INTO \`${logTable}\` (location_name, image_path, content) VALUES (?, ?, ?)`;
+
     db.query(insertSQL, [location_name, image_path, content], (err) => {
       if (err) return res.status(500).json({ success: false, message: '插入日志失败' });
 
-      // 构建更新语句
-      const updateStatsSQL = `UPDATE \`${statsTable}\` SET logs_count = logs_count + 1${isNewLocation ? ', marked_count = marked_count + 1' : ''}`;
+      const updateLogsSQL = `UPDATE \`${statsTable}\` SET logs_count = logs_count + 1`;
+      db.query(updateLogsSQL, err => {
+        if (err) return res.status(500).json({ success: false, message: '更新日志数失败' });
 
-      db.query(updateStatsSQL, (err) => {
-        if (err) return res.status(500).json({ success: false, message: '更新统计数据失败' });
-
-        res.json({ success: true, message: '日志上传成功' });
+        // 强制更新 marked_count
+        const refreshMarked = `UPDATE \`${statsTable}\` SET marked_count = (
+          SELECT COUNT(DISTINCT location_name) FROM \`${logTable}\`
+        )`;
+        db.query(refreshMarked, err => {
+          if (err) return res.status(500).json({ success: false, message: '更新 marked_count 失败' });
+          res.json({ success: true, message: '日志上传成功' });
+        });
       });
     });
   });
 });
 
+// 查询日志
+app.get('/api/user-logs', (req, res) => {
+  const username = req.query.username;
+  if (!/^[a-zA-Z0-9_]+$/.test(username)) return res.status(400).json({ error: '非法用户名' });
+
+  const logTable = `${username}_log`;
+  const sql = `SELECT id, location_name, image_path, content, created_at FROM \`${logTable}\` ORDER BY created_at DESC`;
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: '查询失败' });
+    res.json(results);
+  });
+});
+
+
+// 删除日志
+app.post('/api/delete-log', (req, res) => {
+  const { id, username } = req.body;
+  if (!id || !username || !/^[a-zA-Z0-9_]+$/.test(username)) {
+    return res.status(400).json({ message: '参数不合法' });
+  }
+
+  const logTable = `${username}_log`;
+  const statsTable = `${username}_stats`;
+
+  // 1. 获取将要删除的地点名称
+  const getLocationSQL = `SELECT location_name FROM \`${logTable}\` WHERE id = ?`;
+  db.query(getLocationSQL, [id], (err, result) => {
+    if (err || result.length === 0) {
+      return res.status(500).json({ message: '获取日志地点失败' });
+    }
+
+    const locationName = result[0].location_name;
+
+    // 2. 删除日志
+    const deleteSQL = `DELETE FROM \`${logTable}\` WHERE id = ?`;
+    db.query(deleteSQL, [id], (err) => {
+      if (err) return res.status(500).json({ message: '删除日志失败' });
+
+      // 3. 更新 logs_count
+      const updateLogsSQL = `UPDATE \`${statsTable}\` SET logs_count = logs_count - 1 WHERE logs_count > 0`;
+      db.query(updateLogsSQL, err => {
+        if (err) return res.status(500).json({ message: '更新日志数失败' });
+
+        // 4. 重新查询所有不重复地点数量
+        const countDistinctSQL = `SELECT COUNT(DISTINCT location_name) as marked FROM \`${logTable}\``;
+        db.query(countDistinctSQL, (err, countResult) => {
+          if (err) return res.status(500).json({ message: '统计地点失败' });
+
+          const markedCount = countResult[0].marked;
+          const updateMarkedSQL = `UPDATE \`${statsTable}\` SET marked_count = ?`;
+          db.query(updateMarkedSQL, [markedCount], (err) => {
+            if (err) return res.status(500).json({ message: '更新 marked_count 失败' });
+            res.json({ success: true, message: '日志删除成功' });
+          });
+        });
+      });
+    });
+  });
+});
 
 app.listen(3001, () => {
   console.log('Server running on http://localhost:3001');
