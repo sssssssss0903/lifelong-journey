@@ -1,21 +1,30 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
-import svgr from 'vite-plugin-svgr'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+import svgr from 'vite-plugin-svgr';
 
 export default defineConfig({
-  base: './',  //  相对路径用于 file:// 协议加载资源
+  base: './',
   plugins: [react(), svgr()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/api/, '/api'),
+      }
+    }
+  },
   build: {
     target: 'es2015',
     modulePreload: false,
     rollupOptions: {
-      input: path.resolve(__dirname, 'index.html'), //  添加入口 HTML 文件路径
+      input: path.resolve(__dirname, 'index.html'),
       output: {
-        format: 'iife', //  非模块格式，避免 CORS 问题
-        entryFileNames: 'bundle.js',      // JS 输出名
-        assetFileNames: 'bundle.css',     // CSS 输出名
+        format: 'iife',
+        entryFileNames: 'bundle.js',
+        assetFileNames: 'bundle.css',
       },
     },
   },
-})
+});
