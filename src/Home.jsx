@@ -5,12 +5,12 @@ import chinaSvg from './assets/china.svg?raw';
 import './styles.css';
 import wuhanImg from './assets/wuhan.jpg';
 
-export default function Home() {
+export default function Home({ username }) { //  1. 接收 username
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [addPanelOpen, setAddPanelOpen] = useState(false);
   const [locationPanelOpen, setLocationPanelOpen] = useState(false);
   const [scale, setScale] = useState(1);
-  const [origin] = useState({ x: 50, y: 50 }); // 固定中心点缩放
+  const [origin] = useState({ x: 50, y: 50 });
   const mapRef = useRef();
 
   function handleMapClick(e) {
@@ -49,7 +49,7 @@ export default function Home() {
           image={wuhanImg}
         />
       ) : sidebarOpen ? (
-        <Sidebar />
+        <Sidebar username={username} /> 
       ) : null}
 
       <div className="main-content">
@@ -71,7 +71,7 @@ export default function Home() {
             style={{
               transform: `scale(${scale})`,
               transformOrigin: `${origin.x}% ${origin.y}%`,
-              minHeight:'100vh'
+              minHeight: '100vh'
             }}
             onClick={handleMapClick}
             dangerouslySetInnerHTML={{ __html: chinaSvg }}

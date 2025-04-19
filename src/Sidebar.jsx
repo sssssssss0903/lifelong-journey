@@ -1,13 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import avatarImg from './assets/avatar.png';
 
-export default function Sidebar({ type = 'default', image, onClose }) {
+export default function Sidebar({ type = 'default', image, onClose, username }) {
   const navigate = useNavigate();
 
   function handleLogout() {
-    // 清除登录状态
-    // localStorage.removeItem('token'); 等
-    navigate('/login');
+    localStorage.removeItem('username'); // 清除本地保存的用户名
+    navigate('/login');                  // 跳转回登录页
   }
 
   return (
@@ -20,7 +19,7 @@ export default function Sidebar({ type = 'default', image, onClose }) {
 
             {/* 地点信息 */}
             <div className="panel-content">
-              <h3>当前位置：湖北省</h3>
+              <h3>当前位置：湖北省武汉市</h3>
               <p>武汉大学</p>
               {image && (
                 <img src={image} alt="武汉大学" className="location-image" />
@@ -34,7 +33,7 @@ export default function Sidebar({ type = 'default', image, onClose }) {
               <div className="user-avatar">
                 <img src={avatarImg} alt="avatar" />
               </div>
-              <div className="username">USER NAME</div>
+              <div className="username">{username || '游客'}</div>
 
               {/* ➕ 退出按钮 */}
               <button className="logout-button" onClick={handleLogout}>
@@ -47,7 +46,7 @@ export default function Sidebar({ type = 'default', image, onClose }) {
             <div className="stats">
               <div className="stat-block">
                 <div className="stat-number">25</div>
-                <div className="stat-label">已标记城市</div>
+                <div className="stat-label">已标记地点</div>
               </div>
               <div className="stat-block">
                 <div className="stat-number">136</div>

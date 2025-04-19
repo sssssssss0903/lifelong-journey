@@ -6,7 +6,7 @@ export default function AddPanel({ onClose }) {
         <label className="form-label">地点名称</label>
         <input
           type="text"
-          placeholder="如：武汉大学"
+          placeholder="如：武汉"
           className="form-input"
         />
   

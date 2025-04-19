@@ -32,6 +32,13 @@
     }
   },
   "dependencies": {
+    "axios": "^1.8.4",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.14.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.5.0"
@@ -53,5 +60,15 @@
     "vite": "^6.3.1",
     "vite-plugin-svgr": "^4.3.0",
     "wait-on": "^8.0.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sssssssss0903/lifelong-journey.git"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sssssssss0903/lifelong-journey/issues"
+  },
+  "homepage": "https://github.com/sssssssss0903/lifelong-journey#readme"
 }

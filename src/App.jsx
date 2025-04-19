@@ -1,17 +1,20 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Login from './login'
-import Home from './Home'
+import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Login from './login';
+import Home from './Home';
+import Register from './Register';
 
-function App() {
+export default function App() {
+  const [username, setUsername] = useState(localStorage.getItem('username') || '');
+
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} /> 
-        <Route path="/login" element={<Login />} />
-        <Route path="/home" element={<Home />} />
+        <Route path="/" element={<Login setUsername={setUsername} />} />
+        <Route path="/login" element={<Login setUsername={setUsername} />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/home" element={<Home username={username} />} />
       </Routes>
     </Router>
-  )
+  );
 }
-
-export default App
