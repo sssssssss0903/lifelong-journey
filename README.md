@@ -69,7 +69,7 @@ const db = mysql.createConnection({
 
 ```bash
 
-node src/server.cjs
+node server.cjs
 ```
 启动成功后控制台应显示：
 
