@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { LOCATION_MAPPING } from './utils/locationMapping';
 
-export default function AddPanel({ onClose }) {
+export default function AddPanel({ onClose,setMarkedRegions}) {
   const [location, setLocation] = useState('');
   const [image, setImage] = useState(null);
   const [content, setContent] = useState('');
@@ -9,6 +10,13 @@ export default function AddPanel({ onClose }) {
   const username = localStorage.getItem('username');
 
   const handleSubmit = async () => {
+
+    const locationId = LOCATION_MAPPING[location.trim()] || '';
+    if (!locationId) { // 新增校验
+      alert("无效的地点名称，请输入标准名称（如：武汉）");
+      return;
+    }
+  
     if (!location.trim() || !content.trim()) {
       alert('地点或日志内容不能为空');
       return;
@@ -16,7 +24,7 @@ export default function AddPanel({ onClose }) {
 
     const formData = new FormData();
     formData.append('username', username);
-    formData.append('location_name', location);
+    formData.append('location_name', locationId);
     formData.append('content', content);
     if (image) formData.append('image', image);
 
@@ -26,6 +34,16 @@ export default function AddPanel({ onClose }) {
       });
       alert(res.data.message);
       onClose();
+      // 刷新 markedRegions 数据
+      const loadMarkedRegions = async () => {
+        try {
+          const res = await axios.get(`/api/user-log?username=${username}`);
+          setMarkedRegions(res.data.marked_locations || []);
+          } catch (err) {
+            console.error('刷新标记区域失败:', err.message);
+          } 
+    };
+    loadMarkedRegions();
     } catch (err) {
       alert(err.response?.data?.message || '提交失败');
     }

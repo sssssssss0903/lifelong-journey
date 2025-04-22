@@ -493,3 +493,18 @@ body {
 .zoom-controls button:hover {
   background-color: #f0f0f0;
 }
+
+.marker-container {
+  z-index: 5; /* 确保在SVG上层 */
+}
+
+.location-marker {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.2); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}

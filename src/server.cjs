@@ -182,3 +182,24 @@ app.post('/api/upload-log', upload.single('image'), (req, res) => {
 app.listen(3001, () => {
   console.log('Server running on http://localhost:3001');
 });
+
+app.get('/api/user-log', (req, res) => {
+  const username = req.query.username;
+
+  // 简单校验避免 SQL 注入
+  if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+    return res.status(400).json({ error: '非法用户名' });
+  }
+
+  const logTable = `${username}_log`;
+  const sql = `SELECT location_name, image_path, content FROM \`${logTable}\``;
+
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: '查询失败' });
+    if (results.length === 0) return res.status(404).json({ error: '未找到数据' });
+
+    const markedLocations = [...new Set(results.map(item => item.location_name))];
+
+    res.json({ marked_locations: markedLocations });
+  });
+});
