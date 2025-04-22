@@ -2,10 +2,11 @@
 # 🧭 Lifelong Journey
 ![alt text](image-5.png)
 
-![alt text](image-6.png)
+![alt text](image-11.png)
 ![alt text](image-7.png)
 ![alt text](image-9.png)
 ![alt text](image-4.png)
+![alt text](image-10.png)
 ---
 
 ## 🧱 架构
@@ -58,14 +59,13 @@ Lifelong-Journey/
 首先要在本地配置项目数据库,修改server.cjs中的连接信息为实际
 ```bash
 const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  host: localhost,
+  user: '',
+  password: 'process.env.DB_PASSWORD',
+  database: '',
 });
 ```
 启动后端接口（使用 Node.js + MySQL）
-确保 .env 中已正确填写数据库连接信息，然后运行：
 
 ```bash
 

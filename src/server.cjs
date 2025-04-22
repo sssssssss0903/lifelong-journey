@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
@@ -21,9 +20,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const db = mysql.createConnection({
   host: 'localhost',
-  user: '替换为实际mysql用户',
-  password: '替换为实际密码',
-  database: '替换为实际数据库',
+  user: '',
+  password: '',
+  database: '',
 });
 
 db.connect(err => {
@@ -61,7 +60,8 @@ app.post('/api/register', (req, res) => {
 
     const createLogTable = `CREATE TABLE \`${username}_log\` (
       id INT AUTO_INCREMENT PRIMARY KEY,
-      location_name VARCHAR(100),
+      location_name VARCHAR(100),               -- 地图打点 ID，如 pHB
+      location_display_name VARCHAR(100),       -- 显示中文，如 武汉
       image_path VARCHAR(255),
       content TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -111,8 +111,10 @@ app.get('/api/user-stats', (req, res) => {
 
 // 上传日志
 app.post('/api/upload-log', upload.single('image'), (req, res) => {
-  const { username, location_name, content } = req.body;
-  if (!username || !location_name || !content) return res.status(400).json({ success: false, message: '缺少参数' });
+  const { username, location_name, location_display_name, content } = req.body;
+  if (!username || !location_name || !location_display_name || !content) {
+    return res.status(400).json({ success: false, message: '缺少参数' });
+  }
 
   const image_path = req.file ? `http://localhost:3001/uploads/${req.file.filename}` : null;
   const logTable = `${username}_log`;
@@ -122,17 +124,16 @@ app.post('/api/upload-log', upload.single('image'), (req, res) => {
   db.query(checkLocationSQL, [location_name], (err, results) => {
     if (err) return res.status(500).json({ success: false, message: '查询地点失败' });
 
-    const isNewLocation = results[0].count === 0;
-    const insertSQL = `INSERT INTO \`${logTable}\` (location_name, image_path, content) VALUES (?, ?, ?)`;
+    const insertSQL = `INSERT INTO \`${logTable}\` 
+      (location_name, location_display_name, image_path, content) VALUES (?, ?, ?, ?)`;
 
-    db.query(insertSQL, [location_name, image_path, content], (err) => {
+    db.query(insertSQL, [location_name, location_display_name, image_path, content], (err) => {
       if (err) return res.status(500).json({ success: false, message: '插入日志失败' });
 
       const updateLogsSQL = `UPDATE \`${statsTable}\` SET logs_count = logs_count + 1`;
       db.query(updateLogsSQL, err => {
         if (err) return res.status(500).json({ success: false, message: '更新日志数失败' });
 
-        // 强制更新 marked_count
         const refreshMarked = `UPDATE \`${statsTable}\` SET marked_count = (
           SELECT COUNT(DISTINCT location_name) FROM \`${logTable}\`
         )`;
@@ -145,19 +146,19 @@ app.post('/api/upload-log', upload.single('image'), (req, res) => {
   });
 });
 
-// 查询日志
+// 查询日志（完整日志信息展示用）
 app.get('/api/user-logs', (req, res) => {
   const username = req.query.username;
   if (!/^[a-zA-Z0-9_]+$/.test(username)) return res.status(400).json({ error: '非法用户名' });
 
   const logTable = `${username}_log`;
-  const sql = `SELECT id, location_name, image_path, content, created_at FROM \`${logTable}\` ORDER BY created_at DESC`;
+  const sql = `SELECT id, location_name, location_display_name, image_path, content, created_at 
+               FROM \`${logTable}\` ORDER BY created_at DESC`;
   db.query(sql, (err, results) => {
     if (err) return res.status(500).json({ error: '查询失败' });
     res.json(results);
   });
 });
-
 
 // 删除日志
 app.post('/api/delete-log', (req, res) => {
@@ -169,26 +170,20 @@ app.post('/api/delete-log', (req, res) => {
   const logTable = `${username}_log`;
   const statsTable = `${username}_stats`;
 
-  // 1. 获取将要删除的地点名称
   const getLocationSQL = `SELECT location_name FROM \`${logTable}\` WHERE id = ?`;
   db.query(getLocationSQL, [id], (err, result) => {
     if (err || result.length === 0) {
       return res.status(500).json({ message: '获取日志地点失败' });
     }
 
-    const locationName = result[0].location_name;
-
-    // 2. 删除日志
     const deleteSQL = `DELETE FROM \`${logTable}\` WHERE id = ?`;
     db.query(deleteSQL, [id], (err) => {
       if (err) return res.status(500).json({ message: '删除日志失败' });
 
-      // 3. 更新 logs_count
       const updateLogsSQL = `UPDATE \`${statsTable}\` SET logs_count = logs_count - 1 WHERE logs_count > 0`;
       db.query(updateLogsSQL, err => {
         if (err) return res.status(500).json({ message: '更新日志数失败' });
 
-        // 4. 重新查询所有不重复地点数量
         const countDistinctSQL = `SELECT COUNT(DISTINCT location_name) as marked FROM \`${logTable}\``;
         db.query(countDistinctSQL, (err, countResult) => {
           if (err) return res.status(500).json({ message: '统计地点失败' });
@@ -205,27 +200,25 @@ app.post('/api/delete-log', (req, res) => {
   });
 });
 
-app.listen(3001, () => {
-  console.log('Server running on http://localhost:3001');
-});
-
+// 提供地图打点用的位置 ID 列表（简化接口）
 app.get('/api/user-log', (req, res) => {
   const username = req.query.username;
-
-  // 简单校验避免 SQL 注入
   if (!/^[a-zA-Z0-9_]+$/.test(username)) {
     return res.status(400).json({ error: '非法用户名' });
   }
 
   const logTable = `${username}_log`;
-  const sql = `SELECT location_name, image_path, content FROM \`${logTable}\``;
+  const sql = `SELECT location_name FROM \`${logTable}\``;
 
   db.query(sql, (err, results) => {
     if (err) return res.status(500).json({ error: '查询失败' });
     if (results.length === 0) return res.status(404).json({ error: '未找到数据' });
 
     const markedLocations = [...new Set(results.map(item => item.location_name))];
-
     res.json({ marked_locations: markedLocations });
   });
+});
+
+app.listen(3001, () => {
+  console.log('Server running on http://localhost:3001');
 });

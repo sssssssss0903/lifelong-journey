@@ -2,7 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { LOCATION_MAPPING } from './utils/locationMapping';
 
-export default function AddPanel({ onClose,setMarkedRegions}) {
+export default function AddPanel({ onClose, setMarkedRegions }) {
   const [location, setLocation] = useState('');
   const [image, setImage] = useState(null);
   const [content, setContent] = useState('');
@@ -10,40 +10,44 @@ export default function AddPanel({ onClose,setMarkedRegions}) {
   const username = localStorage.getItem('username');
 
   const handleSubmit = async () => {
+    const trimmedLocation = location.trim();
+    const locationId = LOCATION_MAPPING[trimmedLocation] || '';
 
-    const locationId = LOCATION_MAPPING[location.trim()] || '';
-    if (!locationId) { // 新增校验
+    if (!locationId) {
       alert("无效的地点名称，请输入标准名称（如：武汉）");
       return;
     }
-  
-    if (!location.trim() || !content.trim()) {
+
+    if (!trimmedLocation || !content.trim()) {
       alert('地点或日志内容不能为空');
       return;
     }
 
     const formData = new FormData();
     formData.append('username', username);
-    formData.append('location_name', locationId);
+    formData.append('location_name', locationId);            // 标准化 ID（如 pHB）
+    formData.append('location_display_name', trimmedLocation); // 用户输入（如 武汉）
     formData.append('content', content);
     if (image) formData.append('image', image);
 
     try {
       const res = await axios.post('/api/upload-log', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
+
       alert(res.data.message);
       onClose();
-      // 刷新 markedRegions 数据
-      const loadMarkedRegions = async () => {
+
+      // 上传成功后刷新标记点
+      const refreshMarkers = async () => {
         try {
           const res = await axios.get(`/api/user-log?username=${username}`);
           setMarkedRegions(res.data.marked_locations || []);
-          } catch (err) {
-            console.error('刷新标记区域失败:', err.message);
-          } 
-    };
-    loadMarkedRegions();
+        } catch (err) {
+          console.error('刷新标记区域失败:', err.message);
+        }
+      };
+      refreshMarkers();
     } catch (err) {
       alert(err.response?.data?.message || '提交失败');
     }
