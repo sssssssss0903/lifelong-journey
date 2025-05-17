@@ -21,13 +21,13 @@ export default function Home({ username }) {
   // 初始化地图
   useEffect(() => {
     window._AMapSecurityConfig = {
-      securityJsCode: '',
+        securityJsCode: 'fbce27ca4fb16e9fd96a2f7085b3fc23',
     };
 
     AMapLoader.load({
-      key: '',
+        key: 'bdb03370210cd724f39ff61caa8981cd',
       version: '2.0',
-      plugins: ['AMap.Marker', 'AMap.ToolBar', 'AMap.Scale', 'AMap.OverView', 'AMap.Geocoder'],
+      plugins: ['AMap.Marker', 'AMap.ToolBar', 'AMap.Scale', 'AMap.OverView', 'AMap.Geocoder','AMap.HeatMap'],
     }).then((AMap) => {
       window.AMap = AMap;
       const map = new AMap.Map('gaode-map', {
@@ -44,6 +44,12 @@ export default function Home({ username }) {
       });
     });
   }, []);
+
+    useEffect(() => {
+        console.log('地图实例:', mapInstanceRef.current);
+    }, [mapInstanceRef.current]);
+
+
 
   // 地图添加坐标模式
   useEffect(() => {
@@ -100,34 +106,130 @@ useEffect(() => {
 }, [username]);
 
   // 打点到地图（带坐标防御）
-  useEffect(() => {
-    const map = mapInstanceRef.current;
-    if (!map || !window.AMap) return;
+  //useEffect(() => {
+  //  const map = mapInstanceRef.current;
+  //  if (!map || !window.AMap) return;
 
-    map.clearMap();
+  //  map.clearMap();
 
-    console.log(' 打点数据:', markedRegions);
+  //  console.log(' 打点数据:', markedRegions);
 
-    markedRegions.forEach((log) => {
-      const lng = parseFloat(log.longitude);
-      const lat = parseFloat(log.latitude);
+  //  markedRegions.forEach((log) => {
+  //    const lng = parseFloat(log.longitude);
+  //    const lat = parseFloat(log.latitude);
 
-      if (!Number.isFinite(lng) || !Number.isFinite(lat)) {
-        console.warn('跳过非法坐标日志:', log);
-        return;
-      }
+  //    if (!Number.isFinite(lng) || !Number.isFinite(lat)) {
+  //      console.warn('跳过非法坐标日志:', log);
+  //      return;
+  //    }
 
-      const marker = new window.AMap.Marker({
-        position: [lng, lat],
-        title: log.location_display_name || log.location_name,
-        map,
-      });
+  //    const marker = new window.AMap.Marker({
+  //      position: [lng, lat],
+  //      title: log.location_display_name || log.location_name,
+  //        map,
+  //        content: `<div style="
+  //                  background: radial-gradient(circle, #ff4d4f, #8b0000);
+  //                  border-radius: 50%;
+  //                  width: 16px;
+  //                  height: 16px;
+  //                  box-shadow: 0 0 8px rgba(255, 0, 0, 0.6);
+  //                  border: 2px solid white;
+  //              "></div>`,
+  //        offset: new window.AMap.Pixel(-8, -8),
+  //    });
 
-      marker.on('click', () => {
-        setSelectedLog(log);
-      });
-    });
-  }, [markedRegions]);
+  //    marker.on('click', () => {
+  //      setSelectedLog(log);
+  //    });
+  //  });
+  //}, [markedRegions]);
+
+
+
+    // 打点 + 热力图渲染（合并逻辑）
+    useEffect(() => {
+        const map = mapInstanceRef.current;
+        if (!map || !window.AMap || !window.AMap.Heatmap) return;
+
+        map.clearMap(); // 清除旧图层和点
+
+        console.log('打点数据:', markedRegions);
+
+        const heatData = [];
+
+        markedRegions.forEach((log) => {
+            const lng = parseFloat(log.longitude);
+            const lat = parseFloat(log.latitude);
+
+            if (!Number.isFinite(lng) || !Number.isFinite(lat)) {
+                console.warn('跳过非法坐标日志:', log);
+                return;
+            }
+
+            // 红色立体动态打点
+            const marker = new window.AMap.Marker({
+                position: [lng, lat],
+                title: log.location_display_name || log.location_name,
+                map,
+                content: `
+  <div style="
+    background: radial-gradient(circle at center, #ff6666, #b22222);
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    box-shadow: 0 0 12px 6px rgba(255, 102, 102, 0.7);
+    border: 2px solid white;
+  "></div>
+`,
+                offset: new window.AMap.Pixel(-9, -9),
+            });
+
+
+            marker.on('click', () => {
+                setSelectedLog(log);
+            });
+
+            // 热力图数据收集
+            heatData.push({ lng, lat, count: 1 });
+        });
+
+        // 聚合处理（避免重叠点太亮）
+        const aggregateHeatPoints = (points) => {
+            const grid = new Map();
+            points.forEach(({ lng, lat }) => {
+                const key = `${lng.toFixed(4)},${lat.toFixed(4)}`;
+                if (!grid.has(key)) {
+                    grid.set(key, { lng: parseFloat(lng.toFixed(4)), lat: parseFloat(lat.toFixed(4)), count: 1 });
+                } else {
+                    grid.get(key).count += 1;
+                }
+            });
+            return Array.from(grid.values());
+        };
+
+        const aggregatedHeatData = aggregateHeatPoints(heatData);
+
+        // 清除旧热力图实例
+        if (window.heatmapInstance) {
+            map.remove(window.heatmapInstance);
+        }
+
+        // 添加热力图插件并渲染
+        window.AMap.plugin('AMap.Heatmap', () => {
+            const heatmap = new window.AMap.Heatmap(map, {
+                radius: 30,
+                opacity: [0.3, 1],
+                gradient: {
+                    0.3: '#72f0ff',
+                    0.6: '#ffca3e',
+                    1.0: '#ff4d4f',
+                },
+            });
+            heatmap.setDataSet({ data: aggregatedHeatData, max: 10 });
+            window.heatmapInstance = heatmap;
+        });
+    }, [markedRegions]);
+
 
   // 切换面板
   useEffect(() => {
@@ -169,24 +271,25 @@ useEffect(() => {
       refreshLogs={fetchLogs}/>
       ) : null}
 
-      {/* 主地图区域 */}
-      <div className="main-content">
-        <div className="map-wrapper">
-          <button
-            className="menu-button"
-            onClick={() => {
-              setSidebarOpen((prev) => !prev);
-              setAddPanelOpen(false);
-              setLocationPanelOpen(false);
-              setSelectedLog(null);
-            }}
-          >
-            ☰
-          </button>
+          {/* 主地图区域 */}
+          <div className="main-content">
+              <div className="map-wrapper">
+                  <button
+                      className="menu-button"
+                      onClick={() => {
+                          setSidebarOpen((prev) => !prev);
+                          setAddPanelOpen(false);
+                          setLocationPanelOpen(false);
+                          setSelectedLog(null);
+                      }}
+                  >
+                      ☰
+                  </button>
 
-          <div id="gaode-map" style={{ width: '100%', height: '100vh', minHeight: '500px' }}></div>
-        </div>
-      </div>
+                  <div id="gaode-map" style={{ width: '100%', height: '100vh', minHeight: '500px' }}></div>
+              </div>
+          </div>
+
 
       {/* 添加按钮 */}
       <button
