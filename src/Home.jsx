@@ -51,6 +51,23 @@ export default function Home({ username }) {
 
 
 
+    //初始化加载已有足迹
+    useEffect(() => {
+        const fetchLogs = async () => {
+            try {
+                const res = await axios.get(`/api/user-logs?username=${username}`);
+                setMarkedRegions(res.data.logs || []);
+            } catch (err) {
+                console.error('加载用户日志失败:', err.message);
+            }
+        };
+        if (username) {
+            fetchLogs();
+        }
+    }, [username]);
+
+
+
   // 地图添加坐标模式
   useEffect(() => {
     const map = mapInstanceRef.current;
