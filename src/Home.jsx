@@ -49,8 +49,6 @@ export default function Home({ username }) {
         console.log('地图实例:', mapInstanceRef.current);
     }, [mapInstanceRef.current]);
 
-
-
     //初始化加载已有足迹
     useEffect(() => {
         const fetchLogs = async () => {
@@ -65,6 +63,29 @@ export default function Home({ username }) {
             fetchLogs();
         }
     }, [username]);
+
+    //加载 marker
+    useEffect(() => {
+        const map = mapInstanceRef.current;
+        if (map && markedRegions.length > 0) {
+            //清除已有 marker
+            if (window.currentMarkers) {
+                window.currentMarkers.forEach(marker => marker.setMap(null));
+            }
+
+            //渲染新的 marker
+            const markers = markedRegions.map(log => {
+                return new window.AMap.Marker({
+                    position: [log.longitude, log.latitude],
+                    title: log.location_display_name,
+                    map: map,
+                });
+            });
+
+            //存起来以便清除或管理
+            window.currentMarkers = markers;
+        }
+    }, [mapInstanceRef.current, markedRegions]);
 
 
 
