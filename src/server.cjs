@@ -7,6 +7,7 @@ const path = require('path');
 const fs = require('fs');
 const { Parser } = require('json2csv');
 const PDFDocument = require('pdfkit');
+const { error } = require('console');
 
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
@@ -23,7 +24,7 @@ app.use('/uploads', express.static(uploadDir));
 
 const db = mysql.createConnection({
   host: 'localhost',
-  user: 'root',
+  user: 'young',
   password: '123456',
   database: 'lifelong_journey',
 });
@@ -166,8 +167,8 @@ app.get('/api/user-logs', (req, res) => {
   }
 
   if (city.trim()) {
-    conditions.push(`location_name = ?`);
-    params.push(city);
+    conditions.push(`(location_name LIKE ?)`);
+    params.push(`%${city}%`);
   }
 
   const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
@@ -222,6 +223,25 @@ app.post('/api/delete-log', (req, res) => {
       if (err) return res.status(500).json({ message: '更新统计失败' });
       res.json({ success: true, message: '日志删除成功' });
     });
+  });
+});
+
+//获取用户所有标记地点
+app.get('/api/marked-locations',(req,res) => {
+  const {username } =req.query;
+  if(!/^[a-zA-Z0-9_]+$/.test(username)) {
+    return res.status(400).json({error: '非法用户名'});
+  }
+
+  const logTable = `${username}_log`;
+  const sql = `SELECT DISTINCT location_name, location_display_name 
+    FROM \`${logTable}\`
+    ORDER BY location_name
+    `;
+
+  db.query(sql,(err,results) =>{
+    if(err) return res.status(500).json({error: '查询失败'});
+    res.json({ locations: results });
   });
 });
 

@@ -14,6 +14,8 @@ export default function Sidebar({ type = 'default', image, onClose, username, lo
   const [keyword, setKeyword] = useState('');
   const [city, setCity] = useState('');
   const pageSize = 5;
+  const [showLocations, setShowLocations] = useState(false);
+  const [locationList, setLocationList] = useState([]);
 
   const totalPages = Math.ceil(total / pageSize);
   const currentLog = selectedLog || log;
@@ -24,6 +26,19 @@ export default function Sidebar({ type = 'default', image, onClose, username, lo
       .then(res => setStats(res.data))
       .catch(err => console.error('获取统计失败:', err));
   }, [username, type]);
+
+  const fetchLocations = async () => {
+    try{
+      const res = await axios.get('/api/marked-locations', {
+        params: {username} 
+      });
+      setLocationList(res.data.locations);
+      setShowLocations(true);
+      setShowLogs(false);
+    }catch (err) {
+      console.error('获取地点失败：',err);
+    }
+  };
 
   const fetchLogs = async (pageOverride = page) => {
     try {
@@ -133,15 +148,30 @@ const downloadLogFile = async ({ username, logId = '', type = 'csv' }) => {
               <button className="logout-button" onClick={handleLogout}>退出登录</button>
             </div>
             <hr className="divider" />
-            {!showLogs ? (
+            {showLocations ? (
+              <div style={{ flex: 1, overflowY: 'auto', padding: '0 10px' }}>
+                <h4>📍 已标记地点</h4>
+                {locationList.map((loc, idx) => (
+                  <div 
+                    key={idx} 
+                    className="log-item" 
+                    style={{ cursor: 'pointer', padding: '8px', borderBottom: '1px solid #eee' }}
+                    onClick={() => {/* 点击逻辑 */}}>
+                    {loc.location_display_name || loc.location_name}
+                  </div>
+                ))}
+              </div>
+            ) : !showLogs ? (
               <div className="stats">
-                <div className="stat-block"><div className="stat-number">{stats.marked_count}</div><div className="stat-label">已标记地点</div></div>
+                <div className="stat-block" onClick={fetchLocations} style={{curcor: 'pointer'}}>
+                  <div className="stat-number">{stats.marked_count}</div><div className="stat-label">已标记地点</div>
+                </div>
                 <div className="stat-block" onClick={() => fetchLogs(1)} style={{ cursor: 'pointer' }}>
                   <div className="stat-number">{stats.logs_count}</div><div className="stat-label">已上传日志</div>
                 </div>
                 <div className="stat-block"><div className="stat-number">{stats.medals_count}</div><div className="stat-label">已获得勋章</div></div>
               </div>
-            ) : (
+            ) :  (
               <div style={{ flex: 1, overflowY: 'auto', padding: '0 10px' }}>
                 <h4>📓 日志列表</h4>
                 <div style={{ marginBottom: '10px' }}>
