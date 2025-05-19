@@ -99,7 +99,7 @@ body {
 /* 侧边栏通用样式（Sidebar / AddPanel） */
 .sidebar,
 .add-panel {
-    max-width: 400px;
+    max-width: 800px;
     background-color: #fff;
     border-radius: 12px;
     box-shadow: 0 6px 18px rgba(0,0,0,0.1);
@@ -110,6 +110,19 @@ body {
     flex-direction: column;
     gap: 16px;
 }
+
+.sidebar {
+    height: 100vh;
+    overflow: hidden;
+}
+
+.sidebar-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+}
+
 
 /* 单独给 sidebar 添加背景色 */
 .sidebar {
@@ -658,4 +671,165 @@ h4 {
         box-shadow: 0 6px 20px rgba(216, 65, 83, 0.7);
     }
 
+
+.search-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.search-input {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    flex: 1 1 120px;
+    min-width: 100px;
+}
+
+.search-btn,
+.reset-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: #409EFF;
+    color: white;
+    transition: background-color 0.2s ease;
+}
+
+.reset-btn {
+    background-color: #E6A23C;
+}
+
+.search-btn:hover {
+    background-color: #66b1ff;
+}
+
+.reset-btn:hover {
+    background-color: #f0b768;
+}
+
+.export-btn {
+    margin: 12px 0;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #4CAF50, #66BB6A);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+    .export-btn:hover {
+        background: linear-gradient(135deg, #43A047, #57B560);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+        transform: translateY(-1px);
+    }
+
+    .export-btn:active {
+        transform: scale(0.98);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+    .pagination button {
+        padding: 8px 16px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .pagination button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .pagination button:not(:disabled):hover {
+            background-color: #43A047;
+        }
+
+    .pagination span {
+        font-size: 14px;
+        font-weight: bold;
+        color: #333;
+    }
+
+
+.sidebar {
+    position: relative;
+    height: 100%;
+    background-color: #f9f9f9;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+}
+
+.resizer {
+    width: 5px;
+    cursor: col-resize;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: transparent;
+    z-index: 10;
+}
+
+    .resizer:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+
+
+.export1-btn {
+    margin-top: 12px;
+    padding: 10px 26px;
+    background: linear-gradient(135deg, #ff7e5f, #feb47b);
+    color: #fff;
+    font-weight: 600;
+    font-size: 15px;
+    border: none;
+    border-radius: 30px;
+    box-shadow: 0 4px 10px rgba(254, 180, 123, 0.5);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.25s ease;
+    letter-spacing: 0.03em;
+}
+
+    .export1-btn:hover {
+        background: linear-gradient(135deg, #feb47b, #ff7e5f);
+        box-shadow: 0 6px 16px rgba(254, 180, 123, 0.7);
+        transform: translateY(-2px);
+    }
+
+    .export1-btn:active {
+        background: linear-gradient(135deg, #e67350, #e69b60);
+        box-shadow: 0 3px 8px rgba(198, 141, 96, 0.8);
+        transform: translateY(1px);
+    }
+
+    .export1-btn:disabled {
+        background: #ddd6d5;
+        color: #999;
+        box-shadow: none;
+        cursor: not-allowed;
+        transform: none;
+    }
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import axios from 'axios';
 
 export default function AddPanel({ onClose, setMarkedRegions, coord, city }) {
@@ -27,15 +27,15 @@ export default function AddPanel({ onClose, setMarkedRegions, coord, city }) {
 
         const formData = new FormData();
         formData.append('username', username);
-        formData.append('location_name', city); // 自动城市名，用于打点标识
-        formData.append('location_display_name', trimmedLocation); // 用户填写的显示名
+        formData.append('location_name', city);
+        formData.append('location_display_name', trimmedLocation);
         formData.append('longitude', coord?.[0]);
         formData.append('latitude', coord?.[1]);
         formData.append('content', content);
 
         if (image && Array.isArray(image)) {
             image.forEach((file) => {
-                formData.append('images', file);  // 使用相同字段名 images
+                formData.append('images', file);
             });
         }
 
@@ -46,16 +46,66 @@ export default function AddPanel({ onClose, setMarkedRegions, coord, city }) {
 
             alert(res.data.message);
 
-            await refreshMarkers(); // 等待刷新完成
+            await refreshMarkers();
 
-            onClose(); // 关闭弹窗
+            onClose();
         } catch (err) {
             alert(err.response?.data?.message || '提交失败');
         }
     };
 
+    // 拖拽宽度逻辑
+    const [width, setWidth] = useState(400); // 初始宽度
+    const startX = useRef(0);
+    const startWidth = useRef(0);
+    const dragging = useRef(false);
+
+    const minWidth = 300;
+    const maxWidth = 800;
+
+    const onMouseDown = (e) => {
+        dragging.current = true;
+        startX.current = e.clientX;
+        startWidth.current = width;
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+
+        e.preventDefault();
+    };
+
+    const onMouseMove = (e) => {
+        if (!dragging.current) return;
+
+        const deltaX = e.clientX - startX.current;
+        let newWidth = startWidth.current + deltaX;
+
+        if (newWidth < minWidth) newWidth = minWidth;
+        if (newWidth > maxWidth) newWidth = maxWidth;
+
+        setWidth(newWidth);
+    };
+
+    const onMouseUp = () => {
+        dragging.current = false;
+        window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('mouseup', onMouseUp);
+    };
+
     return (
-        <div className="add-panel">
+        <div
+            className="add-panel"
+            style={{
+                width,
+                border: '1px solid #ccc',
+                padding: '16px',
+                position: 'relative',
+                backgroundColor: 'white',
+                borderRadius: 6,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                userSelect: dragging.current ? 'none' : 'auto', // 拖动时防止选中内容
+            }}
+        >
             <h2 className="panel-title">➕ 添加足迹</h2>
             <p><strong>城市：</strong>{city}</p>
             <p><strong>经纬度：</strong>{coord?.[0]}, {coord?.[1]}</p>
@@ -83,6 +133,23 @@ export default function AddPanel({ onClose, setMarkedRegions, coord, city }) {
             />
             <button className="submit-button" onClick={handleSubmit}>提交</button>
             <button onClick={onClose} className="close-button">关闭</button>
+
+            {/* 拖动条 */}
+            <div
+                onMouseDown={onMouseDown}
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    width: '8px',
+                    height: '100%',
+                    cursor: 'ew-resize',
+                    userSelect: 'none',
+                    backgroundColor: 'transparent',
+                    zIndex: 10,
+                }}
+                title="拖动调整宽度"
+            />
         </div>
     );
 }

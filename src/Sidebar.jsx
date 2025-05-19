@@ -18,7 +18,10 @@ export default function Sidebar({ type = 'default', image, onClose, username, lo
   const [locationList, setLocationList] = useState([]);
 
   const totalPages = Math.ceil(total / pageSize);
-  const currentLog = selectedLog || log;
+    const currentLog = selectedLog || log;
+
+    const [sidebarWidth, setSidebarWidth] = useState(400); // 初始宽度
+    const [isResizing, setIsResizing] = useState(false);
 
   useEffect(() => {
     if (type !== 'default' || !username) return;
@@ -26,6 +29,30 @@ export default function Sidebar({ type = 'default', image, onClose, username, lo
       .then(res => setStats(res.data))
       .catch(err => console.error('获取统计失败:', err));
   }, [username, type]);
+
+
+    //sidebar宽度调整
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            if (!isResizing) return;
+            const newWidth = e.clientX;
+            if (newWidth >= 400 && newWidth <= 720) {
+                setSidebarWidth(newWidth);
+            }
+        };
+
+        const handleMouseUp = () => {
+            setIsResizing(false);
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isResizing]);
 
   const fetchLocations = async () => {
     try{
@@ -107,7 +134,7 @@ const downloadLogFile = async ({ username, logId = '', type = 'csv' }) => {
   }
 };
   return (
-    <div className="sidebar">
+    <div className="sidebar" style={{ width: `${sidebarWidth}px` }}>
       <div className="sidebar-content">
         {(type === 'logDetail' && log) || selectedLog ? (
           <>
@@ -130,15 +157,15 @@ const downloadLogFile = async ({ username, logId = '', type = 'csv' }) => {
                   </div>
                 </div>
               )}
-              <button
-                style={{ marginTop: '12px' }}
-                onClick={() => {
-                 downloadLogFile({ username, logId: currentLog.id, type: 'pdf' });
+                          <button
+                              className="export1-btn"
+                              onClick={() => {
+                                  downloadLogFile({ username, logId: currentLog.id, type: 'pdf' });
+                              }}
+                          >
+                              导出此日志（PDF）
+                          </button>
 
-                }}
-              >
-                导出此日志（PDF）
-              </button>
             </div>
           </>
         ) : type === 'location' ? (
@@ -191,20 +218,22 @@ const downloadLogFile = async ({ username, logId = '', type = 'csv' }) => {
                   <button onClick={() => setShowLogs(false)} className="btn-return">返回</button>
                   <h4>📓 日志列表</h4>
                 <div style={{ marginBottom: '10px' }}>
-                  <input placeholder="关键词" value={keyword} onChange={e => setKeyword(e.target.value)} />
-                  <input placeholder="城市" value={city} onChange={e => setCity(e.target.value)} />
-                  <button onClick={() => { setPage(1); fetchLogs(1); }}>搜索</button>
-                  <button onClick={() => { setKeyword(''); setCity(''); fetchLogs(1); }}>重置</button>
+                  <div className="search-bar">
+                    <input className="search-input" placeholder="关键词" value={keyword} onChange={e => setKeyword(e.target.value)}  />
+                    <input className="search-input" placeholder="城市" value={city} onChange={e => setCity(e.target.value)} />
+                    <button className="search-btn" onClick={() => { setPage(1); fetchLogs(1); }}>搜索</button>
+                    <button className="reset-btn" onClick={() => { setKeyword(''); setCity(''); fetchLogs(1); }}>重置</button> </div>
                 </div>
-                <button
-                  style={{ marginBottom: '12px' }}
-                  onClick={() => {
-                   downloadLogFile({ username, type: 'csv' });
+                                              <button
+                                                  className="export-btn"
+                                                  onClick={() => {
+                                                      downloadLogFile({ username, type: 'csv' });
+                                                  }}
+                                              >
+                                                  导出全部日志（CSV）
+                                              </button>
 
-                  }}
-                >
-                  导出全部日志（CSV）
-                </button>
+
                 {logDetails.map((log, idx) => (
                   <div
                     key={idx}
@@ -229,7 +258,11 @@ const downloadLogFile = async ({ username, logId = '', type = 'csv' }) => {
             )}
           </>
         )}
-      </div>
+          </div>
+          <div
+              className="resizer"
+              onMouseDown={() => setIsResizing(true)}
+          />
     </div>
   );
 }

@@ -143,46 +143,6 @@ useEffect(() => {
   fetchLogs();
 }, [username]);
 
-  // 打点到地图（带坐标防御）
-  //useEffect(() => {
-  //  const map = mapInstanceRef.current;
-  //  if (!map || !window.AMap) return;
-
-  //  map.clearMap();
-
-  //  console.log(' 打点数据:', markedRegions);
-
-  //  markedRegions.forEach((log) => {
-  //    const lng = parseFloat(log.longitude);
-  //    const lat = parseFloat(log.latitude);
-
-  //    if (!Number.isFinite(lng) || !Number.isFinite(lat)) {
-  //      console.warn('跳过非法坐标日志:', log);
-  //      return;
-  //    }
-
-  //    const marker = new window.AMap.Marker({
-  //      position: [lng, lat],
-  //      title: log.location_display_name || log.location_name,
-  //        map,
-  //        content: `<div style="
-  //                  background: radial-gradient(circle, #ff4d4f, #8b0000);
-  //                  border-radius: 50%;
-  //                  width: 16px;
-  //                  height: 16px;
-  //                  box-shadow: 0 0 8px rgba(255, 0, 0, 0.6);
-  //                  border: 2px solid white;
-  //              "></div>`,
-  //        offset: new window.AMap.Pixel(-8, -8),
-  //    });
-
-  //    marker.on('click', () => {
-  //      setSelectedLog(log);
-  //    });
-  //  });
-  //}, [markedRegions]);
-
-
 
     // 打点 + 热力图渲染（合并逻辑）
     useEffect(() => {
