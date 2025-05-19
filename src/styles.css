@@ -50,53 +50,65 @@ body {
 
 /* 左上角菜单按钮 */
 .menu-button {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  z-index: 10; /* 确保不被 SVG 遮挡 */
-  background-color: white;
-  color: black;
-  font-size: 24px;
-  padding: 12px 16px;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  border: none;
-  cursor: pointer;
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 10; /* 确保不被 SVG 遮挡 */
+    background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+    color: #333333;
+    font-size: 26px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
 }
+
+    .menu-button:hover {
+        background: linear-gradient(135deg, #f0f0f0 0%, #ffffff 100%);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        transform: translateY(-2px);
+    }
 
 
 /* 加号按钮 */
 .plus-button {
-  position: fixed;
-  bottom: 32px;
-  right: 32px;
-  width: 64px;
-  height: 64px;
-  background-color: #d32f2f;
-  color: white;
-  font-size: 36px;
-  border-radius: 50%;
-  border: none;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  cursor: pointer;
-  z-index: 1000;
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #d32f2f 0%, #a62121 100%);
+    color: white;
+    font-size: 38px;
+    border-radius: 50%;
+    border: none;
+    box-shadow: 0 6px 18px rgba(211, 47, 47, 0.5);
+    cursor: pointer;
+    z-index: 1000;
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
 }
 
-.plus-button:hover {
-  background-color: #b71c1c;
-}
+    .plus-button:hover {
+        background: linear-gradient(135deg, #a62121 0%, #d32f2f 100%);
+        box-shadow: 0 8px 24px rgba(183, 28, 28, 0.7);
+        transform: translateY(-3px);
+    }
 
 /* 侧边栏通用样式（Sidebar / AddPanel） */
 .sidebar,
 .add-panel {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 450px;
-  padding: 24px;
-  box-sizing: border-box;
-  flex-shrink: 0;
-  overflow-y: auto;
+    max-width: 400px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    padding: 24px 28px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 /* 单独给 sidebar 添加背景色 */
@@ -144,20 +156,24 @@ body {
   color: #333;
 }
 .logout-button {
-  margin-top: 12px;
-  padding: 8px 12px;
-  font-size: 14px;
-  color: white;
-  background-color: #f44336;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+    margin-top: 12px;
+    padding: 10px 16px;
+    font-size: 15px;
+    color: white;
+    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(244, 67, 54, 0.4);
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
 }
 
-.logout-button:hover {
-  background-color: #d32f2f;
-}
+    .logout-button:hover {
+        background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+        box-shadow: 0 6px 16px rgba(211, 47, 47, 0.7);
+        transform: translateY(-2px);
+    }
+
 
 /* 数据块 */
 .stats {
@@ -196,26 +212,48 @@ body {
 }
 
 .panel-title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 24px;
-  color: #333;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #1e88e5;
+    user-select: none;
 }
 
 .form-label {
-  font-weight: 600;
-  font-size: 14px;
-  margin-bottom: 4px;
+    font-weight: 600;
+    margin-top: 12px;
+    margin-bottom: 6px;
+    color: #555;
+    user-select: none;
 }
 
-.form-input {
-  width: 100%;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 16px;
-  font-size: 14px;
+
+.form-input,
+.add-panel textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.8px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.25s ease;
+    resize: vertical;
+    font-family: inherit;
 }
+
+.form-input:focus,
+.add-panel textarea:focus {
+    outline: none;
+    border-color: #1e88e5;
+    box-shadow: 0 0 6px rgba(30, 136, 229, 0.4);
+}
+
+.add-panel input[type="file"] {
+    margin-top: 6px;
+    margin-bottom: 12px;
+    cursor: pointer;
+}
+
+
 
 .upload-area {
   width: 100%;
@@ -231,28 +269,58 @@ body {
 }
 
 .submit-button {
-  background-color: red;
-  color: white;
-  padding: 10px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
+    background: linear-gradient(135deg, red 0%, darkred 100%);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(255, 0, 0, 0.4);
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
 }
 
-.submit-button:hover {
-  background-color: darkred;
-}
+    .submit-button:hover {
+        background: linear-gradient(135deg, darkred 0%, red 100%);
+        box-shadow: 0 6px 16px rgba(139, 0, 0, 0.7);
+        transform: translateY(-2px);
+    }
+
 
 .close-button {
-  margin-top: 16px;
-  font-size: 12px;
-  color: #666;
-  text-align: right;
-  cursor: pointer;
-  text-decoration: underline;
-  align-self: flex-end;
+    margin-top: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #888888;
+    text-align: right;
+    cursor: pointer;
+    text-decoration: none;
+    align-self: flex-end;
+    padding: 6px 12px; 
+    border-radius: 6px;
+    background-color: transparent;
+    border: 1.5px solid transparent;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); 
+    transition: color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+    user-select: none; 
 }
+
+    .close-button:hover {
+        color: #222222; 
+        background-color: #e0e0e0; 
+        border-color: #b0b0b0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+
+    .close-button:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+
+
 
 /* 登录页背景容器 */
 .login-bg {
@@ -570,21 +638,24 @@ h4 {
   font-size: 16px;
 }
 
+/*返回按钮*/
 .btn-return {
     margin-bottom: 10px;
     padding: 8px 20px;
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    background: linear-gradient(135deg, #fc5d6d 0%, #d84153 100%);
     border: none;
     border-radius: 25px;
     color: #fff;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(37, 117, 252, 0.4);
+    box-shadow: 0 4px 12px rgba(252, 93, 109, 0.5);
     transition: background 0.3s ease, box-shadow 0.3s ease;
     outline: none;
 }
 
     .btn-return:hover {
-        background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
-        box-shadow: 0 6px 20px rgba(106, 17, 203, 0.6);
+        background: linear-gradient(135deg, #d84153 0%, #fc5d6d 100%);
+        box-shadow: 0 6px 20px rgba(216, 65, 83, 0.7);
     }
+
+
