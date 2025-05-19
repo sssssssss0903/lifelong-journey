@@ -148,9 +148,10 @@ const downloadLogFile = async ({ username, logId = '', type = 'csv' }) => {
               <button className="logout-button" onClick={handleLogout}>退出登录</button>
             </div>
             <hr className="divider" />
-            {showLocations ? (
-              <div style={{ flex: 1, overflowY: 'auto', padding: '0 10px' }}>
-                <h4>📍 已标记地点</h4>
+                              {showLocations ? (
+                                  <div style={{ flex: 1, overflowY: 'auto', padding: '0 10px' }}>
+                                      <button onClick={() => setShowLocations(false)} style={{ marginBottom: '10px' }}>返回</button>
+                                      <h4>📍 已标记地点</h4>
                 {locationList.map((loc, idx) => (
                   <div 
                     key={idx} 
@@ -172,8 +173,9 @@ const downloadLogFile = async ({ username, logId = '', type = 'csv' }) => {
                 <div className="stat-block"><div className="stat-number">{stats.medals_count}</div><div className="stat-label">已获得勋章</div></div>
               </div>
             ) :  (
-              <div style={{ flex: 1, overflowY: 'auto', padding: '0 10px' }}>
-                <h4>📓 日志列表</h4>
+                                          <div style={{ flex: 1, overflowY: 'auto', padding: '0 10px' }}>
+                                              <button onClick={() => setShowLogs(false)} style={{ marginBottom: '10px' }}>返回</button>
+                                              <h4>📓 日志列表</h4>
                 <div style={{ marginBottom: '10px' }}>
                   <input placeholder="关键词" value={keyword} onChange={e => setKeyword(e.target.value)} />
                   <input placeholder="城市" value={city} onChange={e => setCity(e.target.value)} />
