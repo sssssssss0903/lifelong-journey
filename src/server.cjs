@@ -8,6 +8,7 @@ const fs = require('fs');
 const { Parser } = require('json2csv');
 const PDFDocument = require('pdfkit');
 const { error } = require('console');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
@@ -23,16 +24,25 @@ app.use(bodyParser.json());
 app.use('/uploads', express.static(uploadDir));
 
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'young',
-  password: '123456',
-  database: 'lifelong_journey',
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  multipleStatements: true
 });
 
-db.connect(err => {
-  if (err) throw err;
-  console.log(' MySQL connected');
-});
+const initSqlPath = path.join(__dirname, 'init.sql');
+if (fs.existsSync(initSqlPath)) {
+  const initSql = fs.readFileSync(initSqlPath, 'utf8');
+  db.query(initSql, err => {
+    if (err) {
+      console.error('数据库初始化失败:', err);
+    } else {
+      console.log('数据库初始化完成');
+    }
+  });
+}
+
 
 // 登录
 app.post('/api/login', (req, res) => {
