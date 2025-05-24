@@ -1,3 +1,4 @@
+
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
@@ -8,7 +9,15 @@ const fs = require('fs');
 const { Parser } = require('json2csv');
 const PDFDocument = require('pdfkit');
 const { error } = require('console');
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
+// 判断是否打包（是否在 win-unpacked ）
+const isPackaged =process.execPath.includes('win-unpacked');
+
+// 设置 dotenv 路径：打包后从 .exe 所在目录读取，否则用开发目录
+const dotenvPath = isPackaged
+  ? path.join(path.dirname(process.execPath), '.env')
+  : path.join(__dirname, '.env');
+
+require('dotenv').config({ path: dotenvPath });
 
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
@@ -20,7 +29,9 @@ const multiUpload = upload.array('images', 10); // 支持最多上传 10 张图
 
 const app = express();
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use('/uploads', express.static(uploadDir));
 
 const db = mysql.createConnection({
@@ -31,25 +42,37 @@ const db = mysql.createConnection({
   multipleStatements: true
 });
 
-const initSqlPath = path.join(__dirname, 'init.sql');
-if (fs.existsSync(initSqlPath)) {
-  const initSql = fs.readFileSync(initSqlPath, 'utf8');
-  db.query(initSql, err => {
-    if (err) {
-      console.error('数据库初始化失败:', err);
-    } else {
-      console.log('数据库初始化完成');
-    }
-  });
-}
+const initSql = `
+CREATE DATABASE IF NOT EXISTS lifelong_journey;
 
+USE lifelong_journey;
+
+CREATE TABLE IF NOT EXISTS user (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(100) NOT NULL UNIQUE,
+  password VARCHAR(100) NOT NULL,
+  marked_count INT DEFAULT 0,
+  logs_count INT DEFAULT 0,
+  medals_count INT DEFAULT 0
+);
+`;
+
+db.query(initSql, err => {
+  if (err) {
+    console.error('数据库初始化失败:', err);
+  } else {
+    console.log('数据库初始化完成');
+  }
+});
 
 // 登录
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   const sql = 'SELECT * FROM user WHERE username = ? AND password = ?';
   db.query(sql, [username, password], (err, results) => {
-    if (err) return res.status(500).json({ success: false, message: '服务器错误' });
+    if (err) {
+      console.error(' 登录查询失败:', err);
+      return res.status(500).json({ success: false, message: '服务器错误' });}
     if (results.length > 0) {
       res.json({ success: true, message: '登录成功', username: results[0].username });
     } else {
@@ -63,7 +86,9 @@ app.post('/api/register', (req, res) => {
   const { username, password } = req.body;
   const createUserSQL = 'INSERT INTO user (username, password, logs_count, marked_count, medals_count) VALUES (?, ?, 0, 0, 0)';
   db.query(createUserSQL, [username, password], err => {
-    if (err) return res.status(500).json({ success: false, message: '注册失败，用户名可能已存在' });
+    if (err) {
+      console.error('注册失败:', err);
+      return res.status(500).json({ success: false, message: '注册失败，用户名可能已存在' });}
 
     const createLogTable = `
       CREATE TABLE \`${username}_log\` (
@@ -322,7 +347,7 @@ imagePaths.forEach((url, i) => {
   if (fs.existsSync(localPath)) {
     try {
       doc.addPage();
-      doc.font(fontPath); // ✅ 每页都重新设置字体！！
+      doc.font(fontPath); 
       doc.image(localPath, {
         fit: [450, 300],
         align: 'center',
@@ -352,6 +377,59 @@ imagePaths.forEach((url, i) => {
   });
 });
 
+// 根据 marked_count 返回用户全部应获得的荣誉称号
+app.get('/api/user-medals', (req, res) => {
+  const { username } = req.query;
+  if (!username || !/^[a-zA-Z0-9_]+$/.test(username)) {
+    return res.status(400).json({ success: false, message: '非法用户名' });
+  }
+
+  const queryUser = 'SELECT marked_count, medals_count FROM user WHERE username = ?';
+  db.query(queryUser, [username], (err, results) => {
+    if (err) {
+      console.error('查询用户数据失败:', err);
+      return res.status(500).json({ success: false, message: '数据库错误' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ success: false, message: '用户不存在' });
+    }
+
+    const { marked_count, medals_count } = results[0];
+
+    // 荣誉规则（按门槛从低到高排列，支持拓展）
+    const honorRules = [
+      { count: 1, title: '第一步' },
+      { count: 3, title: '旅途起步' },
+      { count: 5, title: '城市漫游者' },
+      { count: 8, title: '探索先锋' },
+      { count: 12, title: '风景收藏家' },
+      { count: 18, title: '山河见证者' },
+      { count: 25, title: '足迹达人' },
+      { count: 35, title: '世界行者' },
+    ];
+
+    // 解锁的所有荣誉
+    const unlockedMedals = honorRules
+      .filter(rule => marked_count >= rule.count)
+      .map(rule => rule.title);
+
+    // 如果解锁了新荣誉（数量超过原本 medals_count），更新 user.medals_count
+    if (unlockedMedals.length > medals_count) {
+      const updateSql = 'UPDATE user SET medals_count = ? WHERE username = ?';
+      db.query(updateSql, [unlockedMedals.length, username], updateErr => {
+        if (updateErr) {
+          console.error('更新用户medals_count失败:', updateErr);
+          return res.status(500).json({ success: false, message: '更新失败' });
+        }
+        return res.json({ success: true, medals: unlockedMedals, medals_count: unlockedMedals.length });
+      });
+    } else {
+      // 无新增，仅返回当前荣誉
+      return res.json({ success: true, medals: unlockedMedals, medals_count: unlockedMedals.length });
+    }
+  });
+});
 
 
 // 启动服务

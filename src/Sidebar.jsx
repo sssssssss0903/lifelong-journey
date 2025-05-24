@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import avatarImg from './assets/avatar.png';
-import axios from 'axios';
-
+import { Suspense, lazy } from 'react';
+const StatsChart = lazy(() => import('./StatsChart'));
+import api from './api';
 export default function Sidebar({ type = 'default', image, onClose, username, log, refreshLogs }) {
   const navigate = useNavigate();
-  const [stats, setStats] = useState({ marked_count: 0, logs_count: 0, medals_count: 0 });
+  
+  const [stats, setStats] = useState({ marked_count: 0, logs_count: 0,medals_count: 0 });
   const [logDetails, setLogDetails] = useState([]);
   const [showLogs, setShowLogs] = useState(false);
   const [selectedLog, setSelectedLog] = useState(null);
@@ -16,19 +18,22 @@ export default function Sidebar({ type = 'default', image, onClose, username, lo
   const pageSize = 5;
   const [showLocations, setShowLocations] = useState(false);
   const [locationList, setLocationList] = useState([]);
-
+  const [medalList, setMedalList] = useState([]);
+  const [showMedals, setShowMedals] = useState(false);
+  const [showStatsChart, setShowStatsChart] = useState(false);
   const totalPages = Math.ceil(total / pageSize);
-    const currentLog = selectedLog || log;
+  const currentLog = selectedLog || log;
 
-    const [sidebarWidth, setSidebarWidth] = useState(400); // 初始宽度
-    const [isResizing, setIsResizing] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(400); // 初始宽度
+  const [isResizing, setIsResizing] = useState(false);
 
-  useEffect(() => {
-    if (type !== 'default' || !username) return;
-    axios.get(`/api/user-stats?username=${username}`)
-      .then(res => setStats(res.data))
-      .catch(err => console.error('获取统计失败:', err));
-  }, [username, type]);
+useEffect(() => {
+  if (type === 'default' && username) {
+    fetchMedals(false);
+    getUserStats();  //  确保这个也被调用了
+  }
+}, [username, type]);
+
 
 
     //sidebar宽度调整
@@ -54,9 +59,18 @@ export default function Sidebar({ type = 'default', image, onClose, username, lo
         };
     }, [isResizing]);
 
+const getUserStats = async () => {
+  try {
+    const res = await api.get(`/api/user-stats?username=${username}`);
+    setStats(res.data);
+  } catch (err) {
+    console.error('获取统计失败:', err);
+  }
+}; 
+
   const fetchLocations = async () => {
     try{
-      const res = await axios.get('/api/marked-locations', {
+      const res = await api.get('/api/marked-locations', {
         params: {username} 
       });
       setLocationList(res.data.locations);
@@ -69,7 +83,7 @@ export default function Sidebar({ type = 'default', image, onClose, username, lo
 
   const fetchLogs = async (pageOverride = page) => {
     try {
-      const res = await axios.get('/api/user-logs', {
+      const res = await api.get('/api/user-logs', {
         params: { username, keyword, city, page: pageOverride, limit: pageSize }
       });
       setLogDetails(res.data.logs);
@@ -81,24 +95,32 @@ export default function Sidebar({ type = 'default', image, onClose, username, lo
     }
   };
 
-    const fetchMedals = async () => {
-        try {
-            const res = await axios.get('/api/user-medals', { params: { username } });
-            setMedalList(res.data.medals || []);
-            setShowMedals(true);
-            setShowLogs(false);
-            setShowLocations(false);
-        } catch (err) {
-            console.error('获取勋章失败:', err);
-        }
-    };
+const fetchMedals = async (show = true) => {
+  try {
+    const res = await api.get('/api/user-medals', { params: { username } });
+    const medals = res.data.medals || [];
+    const medalsCount = res.data.medals_count ?? medals.length;
+
+    setMedalList(medals);
+    setStats(prev => ({ ...prev, medals_count: medalsCount }));
+
+    if (show) {
+      setShowMedals(true);
+      setShowLogs(false);
+      setShowLocations(false);
+    }
+  } catch (err) {
+    console.error('获取勋章失败:', err);
+  }
+};
 
   const handleDeleteLog = async (logId) => {
     if (!window.confirm('确定删除该日志吗？')) return;
     try {
-      await axios.post('/api/delete-log', { id: logId, username });
+      await api.post('/api/delete-log', { id: logId, username });
       fetchLogs();
       refreshLogs?.();
+      getUserStats(); // 立即更新 medal 数
     } catch {
       alert('删除失败');
     }
@@ -113,7 +135,7 @@ const downloadLogFile = async ({ username, logId = '', type = 'csv' }) => {
     const params = { username, type };
     if (logId) params.logId = logId;
 
-    const res = await axios.get('/api/export', {
+    const res = await api.get('/api/export', {
       params,
       responseType: 'blob', // 必须指定为 blob 才能触发下载
     });
@@ -179,41 +201,99 @@ const downloadLogFile = async ({ username, logId = '', type = 'csv' }) => {
           </>
         ) : (
           <>
-            <div className="user-info">
-              <div className="user-avatar">
-                <img src={avatarImg} alt="avatar" />
-              </div>
-              <div className="username">{username}</div>
-              <button className="logout-button" onClick={handleLogout}>退出登录</button>
-            </div>
+<div className="user-info">
+  <div className="user-avatar">
+    <img src={avatarImg} alt="avatar" />
+  </div>
+  <div className="username">{username}</div>
+
+  <div className="user-buttons">
+    <button className="logout-button" onClick={handleLogout}>退出登录</button>
+<button
+  className="chart-button"
+  onClick={async () => {
+    await fetchLogs(1); // 等 fetchLogs 完成后再显示图表
+    setShowStatsChart(true);
+    setShowMedals(false);
+    setShowLogs(false);
+    setShowLocations(false);
+  }}
+>
+  可视分析
+</button>
+  </div>
+</div>
             <hr className="divider" />
-                              {showLocations ? (
-                                  <div style={{ flex: 1, overflowY: 'auto', padding: '0 10px' }}>
-                                      <button onClick={() => setShowLocations(false)} className="btn-return" > 返回 </button>
-                                      <h4>📍 已标记地点</h4>
-                {locationList.map((loc, idx) => (
-                  <div 
-                    key={idx} 
-                    className="log-item" 
-                    style={{ cursor: 'pointer', padding: '8px', borderBottom: '1px solid #eee' }}
-                    onClick={() => {/* 点击逻辑 */}}>
-                    {loc.location_display_name || loc.location_name}
-                  </div>
-                ))}
-              </div>
-            ) : !showLogs ? (
-              <div className="stats">
-                <div className="stat-block" onClick={fetchLocations} style={{curcor: 'pointer'}}>
-                  <div className="stat-number">{stats.marked_count}</div><div className="stat-label">已标记地点</div>
-                </div>
-                <div className="stat-block" onClick={() => fetchLogs(1)} style={{ cursor: 'pointer' }}>
-                  <div className="stat-number">{stats.logs_count}</div><div className="stat-label">已上传日志</div>
-                </div>
-                <div className="stat-block" onClick={fetchMedals} style={{ cursor: 'pointer' }}>
-                  <div className="stat-number">{stats.medals_count}</div><div className="stat-label">已获得勋章</div>
-                </div>
-              </div>
-            ) :  (
+                        {showStatsChart ? (
+  <div style={{ padding: '0 10px' }}>
+    <button onClick={() => setShowStatsChart(false)} className="btn-return">返回</button>
+    <h4>📈 城市标记统计</h4>
+ <Suspense fallback={<div>加载中...</div>}>
+  <StatsChart logsData={logDetails} />
+</Suspense>
+  </div>
+) : showLocations ? (
+  <div style={{ flex: 1, overflowY: 'auto', padding: '0 10px' }}>
+    <button onClick={() => setShowLocations(false)} className="btn-return">返回</button>
+    <h4>📍 已标记地点</h4>
+    {locationList.map((loc, idx) => (
+      <div 
+        key={idx} 
+        className="log-item" 
+        style={{ cursor: 'pointer', padding: '8px', borderBottom: '1px solid #eee' }}
+        onClick={() => {/* 点击逻辑 */}}>
+        {loc.location_display_name || loc.location_name}
+      </div>
+    ))}
+  </div>
+) : showMedals ? (
+  <div style={{ flex: 1, overflowY: 'auto', padding: '0 10px' }}>
+    <button onClick={() => setShowMedals(false)} className="btn-return">返回</button>
+    <h4>🏅 荣誉称号</h4>
+    <ul style={{ listStyle: 'none', padding: 0 }}>
+      {[
+        { count: 1, title: '第一步' },
+        { count: 3, title: '旅途起步' },
+        { count: 5, title: '城市漫游者' },
+        { count: 8, title: '探索先锋' },
+        { count: 12, title: '风景收藏家' },
+        { count: 18, title: '山河见证者' },
+        { count: 25, title: '足迹达人' },
+        { count: 35, title: '世界行者' }
+      ].map((item, idx) => {
+        const earned = medalList.includes(item.title);
+        return (
+          <li key={idx} style={{
+            padding: '8px',
+            marginBottom: '6px',
+            background: earned ? '#e6ffe6' : '#f0f0f0',
+            color: earned ? '#222' : '#aaa',
+            borderLeft: earned ? '4px solid #4caf50' : '4px solid #ccc',
+            fontWeight: earned ? 'bold' : 'normal',
+            borderRadius: '4px'
+          }}>
+            {earned ? '✅ ' : '⬜ '} {item.title}（≥ {item.count} 个地点）
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+) : !showLogs ? (
+  <div className="stats">
+    <div className="stat-block" onClick={fetchLocations} style={{ cursor: 'pointer' }}>
+      <div className="stat-number">{stats.marked_count}</div>
+      <div className="stat-label">已标记地点</div>
+    </div>
+    <div className="stat-block" onClick={() => fetchLogs(1)} style={{ cursor: 'pointer' }}>
+      <div className="stat-number">{stats.logs_count}</div>
+      <div className="stat-label">已上传日志</div>
+    </div>
+    <div className="stat-block" onClick={fetchMedals} style={{ cursor: 'pointer' }}>
+      <div className="stat-number">{stats.medals_count}</div>
+      <div className="stat-label">已获得勋章</div>
+    </div>
+  </div>
+) : (
                 <div style={{ flex: 1, overflowY: 'auto', padding: '0 10px' }}>
                   <button onClick={() => setShowLogs(false)} className="btn-return">返回</button>
                   <h4>📓 日志列表</h4>
@@ -255,7 +335,8 @@ const downloadLogFile = async ({ username, logId = '', type = 'csv' }) => {
                   <button disabled={page === totalPages} onClick={() => { setPage(p => p + 1); fetchLogs(page + 1); }}>下一页</button>
                 </div>
               </div>
-            )}
+            )
+            }
           </>
         )}
           </div>

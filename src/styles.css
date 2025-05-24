@@ -188,6 +188,33 @@ body {
     }
 
 
+    .chart-button{
+    margin-top: 12px;
+    padding: 10px 16px;
+    font-size: 15px;
+    color: white;
+    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(244, 67, 54, 0.4);
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+    .chart-button:hover {
+        background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+        box-shadow: 0 6px 16px rgba(211, 47, 47, 0.7);
+        transform: translateY(-2px);
+    }
+
+.user-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  width: 100%;
+  align-items: center; /* 可选：让按钮居中 */
+}
 /* 数据块 */
 .stats {
   display: flex;

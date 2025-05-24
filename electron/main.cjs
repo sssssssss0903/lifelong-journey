@@ -1,31 +1,60 @@
 const { app, BrowserWindow } = require('electron');
+const { fork } = require('child_process');
 const path = require('path');
 const url = require('url');
 
+// 启动本地 Express 后端服务
+function startServer() {
+  const serverPath = path.join(__dirname, '../server.cjs');
+  try {
+    const server = fork(serverPath, {
+     stdio: 'inherit',
+      detached: true
+    });
+    server.unref(); // 确保主进程退出不阻塞
+    console.log('[main] Server started:', serverPath);
+  } catch (err) {
+    console.error('[main] Failed to start server:', err);
+  }
+}
+
+//  创建前端窗口
 function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
     height: 800,
+     icon: path.join(__dirname, '../src/assets/icon.ico'),
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'), // 可选
-      webSecurity: false,                          //  关键：关闭 CORS 安全策略
-      contextIsolation: false,                     // 若使用 Node.js 模块可禁用隔离
-      nodeIntegration: true,                       // 前端需使用 Node 模块
-    },
+      contextIsolation: true,
+      nodeIntegration: false
+    }
   });
 
   if (app.isPackaged) {
-    // 构造 file 协议地址
+    // 加载构建后的页面
     const indexPath = url.format({
       pathname: path.join(__dirname, '../dist/index.html'),
       protocol: 'file:',
-      slashes: true,
+      slashes: true
     });
-
-    win.loadURL(indexPath); //  加载本地文件
+    win.loadURL(indexPath);
   } else {
-    win.loadURL('http://localhost:5173'); // 开发环境加载 Vite 服务器
+    // 加载开发服务器
+    win.loadURL('http://localhost:5173');
+    win.webContents.openDevTools(); // 开发时打开控制台
   }
 }
 
-app.whenReady().then(createWindow);
+//  启动主进程入口
+app.whenReady().then(() => {
+  startServer();       // 启动本地 Express 服务
+  createWindow();      // 创建界面窗口
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit();
+});
