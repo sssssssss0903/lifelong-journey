@@ -833,3 +833,95 @@ h4 {
         transform: none;
     }
 
+
+.medal-scroll-container {
+    max-height: 400px; /* 或你页面上合适的高度 */
+    overflow-y: auto;
+    padding-right: 10px; /* 避免滚动条遮挡内容 */
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+
+.medal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.medal-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.medal-img {
+    width: 48px;
+    height: 48px;
+}
+
+.medal-name {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.medal-desc {
+    font-size: 14px;
+    color: #888;
+}
+
+.medal-scroll-container {
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+}
+
+    .medal-scroll-container::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .medal-scroll-container::-webkit-scrollbar-thumb {
+        background-color: #ccc;
+        border-radius: 3px;
+    }
+
+.medal-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    padding-bottom: 16px;
+}
+
+.medal-item {
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 12px;
+    transition: transform 0.2s;
+}
+
+    .medal-item:hover {
+        transform: scale(1.03);
+    }
+
+    .medal-item.unearned {
+        background: #f8f8f8;
+        border: 2px dashed #ccc;
+    }
+
+    .medal-item.earned {
+        background: #f0fff0;
+        border: 2px solid #5cb85c;
+    }
+
+    .medal-item img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 8px;
+    }
+
+    .medal-item.unearned img {
+        filter: grayscale(100%);
+    }

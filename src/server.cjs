@@ -44,6 +44,71 @@ if (fs.existsSync(initSqlPath)) {
 }
 
 
+// 计算勋章详情和勋章数，更新数据库，并通过回调返回结果
+function updateUserMedalsDetails(username, callback) {
+    const sqlGet = `SELECT logs_count, marked_count FROM user WHERE username = ?`;
+    db.query(sqlGet, [username], (err, results) => {
+        if (err) return callback(err);
+        if (results.length === 0) return callback(new Error('用户不存在'));
+
+        const { logs_count, marked_count } = results[0];
+
+        const logMedals = [
+            {
+                name: '初学者',
+                earned: logs_count >= 1,
+                image_url: logs_count >= 1 ? '/assets/medal_bronze.png' : '/assets/medal_bronze_gray.png',
+                description: '上传 1 条日志即可获得此勋章'
+            },
+            {
+                name: '熟练旅者',
+                earned: logs_count >= 10,
+                image_url: logs_count >= 10 ? '/assets/medal_silver.png' : '/assets/medal_silver_gray.png',
+                description: '上传 10 条日志即可获得此勋章'
+            },
+            {
+                name: '足迹大师',
+                earned: logs_count >= 50,
+                image_url: logs_count >= 50 ? '/assets/medal_gold.png' : '/assets/medal_gold_gray.png',
+                description: '上传 50 条日志即可获得此勋章'
+            }
+        ];
+
+        const locationMedals = [
+            {
+                name: '探索者',
+                earned: marked_count >= 1,
+                image_url: marked_count >= 1 ? '/assets/location_bronze.png' : '/assets/location_bronze_gray.png',
+                description: '标记 1 个地点即可获得此勋章'
+            },
+            {
+                name: '探险家',
+                earned: marked_count >= 5,
+                image_url: marked_count >= 5 ? '/assets/location_silver.png' : '/assets/location_silver_gray.png',
+                description: '标记 5 个地点即可获得此勋章'
+            },
+            {
+                name: '地图征服者',
+                earned: marked_count >= 20,
+                image_url: marked_count >= 20 ? '/assets/location_gold.png' : '/assets/location_gold_gray.png',
+                description: '标记 20 个地点即可获得此勋章'
+            }
+        ];
+
+        const allMedals = [...logMedals, ...locationMedals];
+        const medalsCount = allMedals.filter(m => m.earned).length;
+
+        // 更新数据库的 medals_count 字段
+        const sqlUpdate = `UPDATE user SET medals_count = ? WHERE username = ?`;
+        db.query(sqlUpdate, [medalsCount, username], (updateErr) => {
+            if (updateErr) return callback(updateErr);
+            // 返回勋章数和勋章详情
+            callback(null, { medalsCount, medalsDetails: allMedals });
+        });
+    });
+}
+
+
 // 登录
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
@@ -101,59 +166,72 @@ app.get('/api/user-stats', (req, res) => {
   });
 });
 
-// 上传日志
+// 上传日志接口，调用勋章更新函数
 app.post('/api/upload-log', multiUpload, (req, res) => {
-  try {
-    const { username, location_name, location_display_name, content } = req.body;
-    const lng = parseFloat(req.body.longitude);
-    const lat = parseFloat(req.body.latitude);
+    try {
+        const { username, location_name, location_display_name, content } = req.body;
+        const lng = parseFloat(req.body.longitude);
+        const lat = parseFloat(req.body.latitude);
 
-    console.log('接收到日志上传请求:', {
-      username, location_name, location_display_name, lng, lat,
-      imageCount: req.files?.length,
-    });
+        console.log('接收到日志上传请求:', {
+            username, location_name, location_display_name, lng, lat,
+            imageCount: req.files?.length,
+        });
 
-    if (!username || !location_name || !location_display_name || !content) {
-      return res.status(400).json({ success: false, message: '缺少参数' });
-    }
-    if (!Number.isFinite(lng) || !Number.isFinite(lat)) {
-      return res.status(400).json({ success: false, message: '经纬度不合法' });
-    }
+        if (!username || !location_name || !location_display_name || !content) {
+            return res.status(400).json({ success: false, message: '缺少参数' });
+        }
+        if (!Number.isFinite(lng) || !Number.isFinite(lat)) {
+            return res.status(400).json({ success: false, message: '经纬度不合法' });
+        }
 
-    const imagePaths = (req.files || []).map(file => `http://localhost:3001/uploads/${file.filename}`);
-    const image_path = JSON.stringify(imagePaths); // 多张图存为 JSON 字符串
+        const imagePaths = (req.files || []).map(file => `http://localhost:3001/uploads/${file.filename}`);
+        const image_path = JSON.stringify(imagePaths);
 
-    const logTable = `${username}_log`;
+        const logTable = `${username}_log`;
 
-    const insertSQL = `INSERT INTO \`${logTable}\`
+        const insertSQL = `INSERT INTO \`${logTable}\`
       (location_name, location_display_name, longitude, latitude, image_path, content)
       VALUES (?, ?, ?, ?, ?, ?)`;
 
-    db.query(insertSQL, [location_name, location_display_name, lng, lat, image_path, content], err => {
-      if (err) {
-        console.error('数据库插入失败:', err);
-        return res.status(500).json({ success: false, message: '插入日志失败' });
-      }
+        db.query(insertSQL, [location_name, location_display_name, lng, lat, image_path, content], err => {
+            if (err) {
+                console.error('数据库插入失败:', err);
+                return res.status(500).json({ success: false, message: '插入日志失败' });
+            }
 
-      const updateStatsSQL = `
+            const updateStatsSQL = `
         UPDATE user SET
           logs_count = (SELECT COUNT(*) FROM \`${logTable}\`),
           marked_count = (SELECT COUNT(DISTINCT location_name) FROM \`${logTable}\`)
         WHERE username = ?`;
 
-      db.query(updateStatsSQL, [username], err => {
-        if (err) {
-          console.error('更新统计失败:', err);
-          return res.status(500).json({ success: false, message: '更新统计失败' });
-        }
+            db.query(updateStatsSQL, [username], err => {
+                if (err) {
+                    console.error('更新统计失败:', err);
+                    return res.status(500).json({ success: false, message: '更新统计失败' });
+                }
 
-        res.json({ success: true, message: '日志上传成功' });
-      });
-    });
-  } catch (err) {
-    console.error('上传处理异常:', err);
-    res.status(500).json({ success: false, message: '服务器异常' });
-  }
+                // 统计更新成功后，更新勋章数量并返回
+                updateUserMedalsDetails(username, (err, result) => {
+                    if (err) {
+                        console.error('更新勋章失败:', err);
+                        return res.status(500).json({ success: false, message: '更新勋章失败' });
+                    }
+
+                    res.json({
+                        success: true,
+                        message: '日志上传成功',
+                        medals_count: result.medalsCount,
+                        medals_details: result.medalsDetails,
+                    });
+                });
+            });
+        });
+    } catch (err) {
+        console.error('上传处理异常:', err);
+        res.status(500).json({ success: false, message: '服务器异常' });
+    }
 });
 
 

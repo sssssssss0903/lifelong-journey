@@ -5,7 +5,7 @@ import axios from 'axios';
 
 export default function Sidebar({ type = 'default', image, onClose, username, log, refreshLogs }) {
   const navigate = useNavigate();
-  const [stats, setStats] = useState({ marked_count: 0, logs_count: 0, medals_count: 0 });
+  const [stats, setStats] = useState({ marked_count: 0, logs_count: 0, medals_count: 0, logs_count: 0, marked_count:0 });
   const [logDetails, setLogDetails] = useState([]);
   const [showLogs, setShowLogs] = useState(false);
   const [selectedLog, setSelectedLog] = useState(null);
@@ -15,12 +15,18 @@ export default function Sidebar({ type = 'default', image, onClose, username, lo
   const [city, setCity] = useState('');
   const pageSize = 5;
   const [showLocations, setShowLocations] = useState(false);
-  const [locationList, setLocationList] = useState([]);
+    const [locationList, setLocationList] = useState([]);
+
+    const [showMedals, setShowMedals] = useState(false);
+    const [medalList, setMedalList] = useState([]);
+
+
+
 
   const totalPages = Math.ceil(total / pageSize);
     const currentLog = selectedLog || log;
 
-    const [sidebarWidth, setSidebarWidth] = useState(400); // 初始宽度
+    const [sidebarWidth, setSidebarWidth] = useState(463); // 初始宽度
     const [isResizing, setIsResizing] = useState(false);
 
   useEffect(() => {
@@ -29,6 +35,68 @@ export default function Sidebar({ type = 'default', image, onClose, username, lo
       .then(res => setStats(res.data))
       .catch(err => console.error('获取统计失败:', err));
   }, [username, type]);
+
+
+    const fetchMedals = () => {
+        const logCount = stats.logs_count;
+        const markedCount = stats.marked_count;
+
+        const logMedals = [
+            {
+                name: '初学者',
+                earned: logCount >= 1,
+                image_url: logCount >= 1 ? '/assets/medal_bronze.png' : '/assets/medal_bronze_gray.png',
+                description: '上传 1 条日志即可获得此勋章'
+            },
+            {
+                name: '熟练旅者',
+                earned: logCount >= 10,
+                image_url: logCount >= 10 ? '/assets/medal_silver.png' : '/assets/medal_silver_gray.png',
+                description: '上传 10 条日志即可获得此勋章'
+            },
+            {
+                name: '足迹大师',
+                earned: logCount >= 50,
+                image_url: logCount >= 50 ? '/assets/medal_gold.png' : '/assets/medal_gold_gray.png',
+                description: '上传 50 条日志即可获得此勋章'
+            }
+        ];
+
+        const locationMedals = [
+            {
+                name: '探索者',
+                earned: markedCount >= 1,
+                image_url: markedCount >= 1 ? '/assets/location_bronze.png' : '/assets/location_bronze_gray.png',
+                description: '标记 1 个地点即可获得此勋章'
+            },
+            {
+                name: '探险家',
+                earned: markedCount >= 5,
+                image_url: markedCount >= 5 ? '/assets/location_silver.png' : '/assets/location_silver_gray.png',
+                description: '标记 5 个地点即可获得此勋章'
+            },
+            {
+                name: '地图征服者',
+                earned: markedCount >= 20,
+                image_url: markedCount >= 20 ? '/assets/location_gold.png' : '/assets/location_gold_gray.png',
+                description: '标记 20 个地点即可获得此勋章'
+            }
+        ];
+
+        const allMedals = [...logMedals, ...locationMedals];
+        setMedalList(allMedals);
+
+        // 统计 earned 为 true 的数量
+        const earnedCount = allMedals.filter(m => m.earned).length;
+
+        // 更新 stats.medals_count
+        setStats(prevStats => ({
+            ...prevStats,
+            medals_count: earnedCount
+        }));
+    };
+
+
 
 
     //sidebar宽度调整
@@ -81,17 +149,6 @@ export default function Sidebar({ type = 'default', image, onClose, username, lo
     }
   };
 
-    const fetchMedals = async () => {
-        try {
-            const res = await axios.get('/api/user-medals', { params: { username } });
-            setMedalList(res.data.medals || []);
-            setShowMedals(true);
-            setShowLogs(false);
-            setShowLocations(false);
-        } catch (err) {
-            console.error('获取勋章失败:', err);
-        }
-    };
 
   const handleDeleteLog = async (logId) => {
     if (!window.confirm('确定删除该日志吗？')) return;
@@ -200,7 +257,59 @@ const downloadLogFile = async ({ username, logId = '', type = 'csv' }) => {
                     {loc.location_display_name || loc.location_name}
                   </div>
                 ))}
-              </div>
+                                  </div>
+                              ) : showMedals ? (
+                                      <div style={{ flex: 1, overflowY: 'auto', padding: '0 10px' }}>
+                                          <button onClick={() => setShowMedals(false)} className="btn-return">返回</button>
+                                          <h4 style={{ marginBottom: '10px' }}>🏅 我的勋章</h4>
+
+                                          {medalList.length > 0 ? (
+                                              <div className="medal-grid-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
+                                                  {medalList.map((medal, idx) => (
+                                                      <div
+                                                          key={idx}
+                                                          className={`medal-item ${medal.earned ? 'earned' : 'unearned'}`}
+                                                          style={{
+                                                              borderRadius: '12px',
+                                                              background: medal.earned ? '#f0fff0' : '#f8f8f8',
+                                                              border: medal.earned ? '2px solid #5cb85c' : '2px dashed #ccc',
+                                                              textAlign: 'center',
+                                                              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                                              padding: '12px',
+                                                              transition: 'transform 0.2s',
+                                                              cursor: 'default',
+                                                          }}
+                                                          title={medal.description}
+                                                          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
+                                                          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1.0)'}
+                                                      >
+                                                          <img
+                                                              src={medal.image_url}
+                                                              alt={medal.name}
+                                                              style={{
+                                                                  width: '80px',
+                                                                  height: '80px',
+                                                                  objectFit: 'cover',
+                                                                  borderRadius: '8px',
+                                                                  filter: medal.earned ? 'none' : 'grayscale(100%)',
+                                                                  marginBottom: '8px',
+                                                              }}
+                                                          />
+                                                          <div style={{ fontWeight: 'bold', fontSize: '14px', color: medal.earned ? '#333' : '#aaa' }}>
+                                                              {medal.name}
+                                                          </div>
+                                                          <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                                                              {medal.description}
+                                                          </div>
+                                                      </div>
+                                                  ))}
+                                              </div>
+                                          ) : (
+                                              <p>暂无勋章</p>
+                                          )}
+                                      </div>
+
+
             ) : !showLogs ? (
               <div className="stats">
                 <div className="stat-block" onClick={fetchLocations} style={{curcor: 'pointer'}}>
@@ -209,9 +318,10 @@ const downloadLogFile = async ({ username, logId = '', type = 'csv' }) => {
                 <div className="stat-block" onClick={() => fetchLogs(1)} style={{ cursor: 'pointer' }}>
                   <div className="stat-number">{stats.logs_count}</div><div className="stat-label">已上传日志</div>
                 </div>
-                <div className="stat-block" onClick={fetchMedals} style={{ cursor: 'pointer' }}>
-                  <div className="stat-number">{stats.medals_count}</div><div className="stat-label">已获得勋章</div>
-                </div>
+                                          <div className="stat-block" onClick={() => { fetchMedals(); setShowMedals(true); }} style={{ cursor: 'pointer' }}>
+                                              <div className="stat-number">{stats.medals_count}</div><div className="stat-label">已获得勋章</div>
+                                          </div>
+
               </div>
             ) :  (
                 <div style={{ flex: 1, overflowY: 'auto', padding: '0 10px' }}>
