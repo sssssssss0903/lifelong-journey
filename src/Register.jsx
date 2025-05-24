@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from './api';
 
 import './styles.css'; // 保持和登录页样式统一
 
 import bg1 from './assets/bg1.png';
 import bg2 from './assets/bg2.png';
 import mapImg from './assets/map.png';
-
+import { Link } from 'react-router-dom';
 export default function Register() {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
@@ -20,7 +20,7 @@ export default function Register() {
       }
     
     try {
-      const res = await axios.post('http://localhost:3001/api/register', {
+      const res = await api.post('http://localhost:3001/api/register', {
         username,
         password
       });
@@ -71,7 +71,8 @@ export default function Register() {
           <button className="login-button" onClick={handleRegister}>注册</button>
 
           <div className="login-footer-links">
-            <a href="/">返回登录</a>
+            
+             <Link to="/">返回登录</Link> 
           </div>
         </div>
       </div>

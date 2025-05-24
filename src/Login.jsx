@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import './styles.css';
 
+import './styles.css';
+import { Link } from 'react-router-dom';
 import bg1 from './assets/bg1.png';
 import bg2 from './assets/bg2.png';
 import mapImg from './assets/map.png';
-
+import api from './api';
 export default function Login({ setUsername }) { // 从 props 接收 setUsername
   const navigate = useNavigate();
   const [inputUsername, setInputUsername] = useState('');
@@ -18,7 +18,7 @@ export default function Login({ setUsername }) { // 从 props 接收 setUsername
       return;
     }
     try {
-      const res = await axios.post('http://localhost:3001/api/login', {
+      const res = await api.post('http://localhost:3001/api/login', {
         username: inputUsername,
         password
       });
@@ -79,8 +79,8 @@ export default function Login({ setUsername }) { // 从 props 接收 setUsername
           <button className="login-button" onClick={handleLogin}>登录</button>
 
           <div className="login-footer-links">
-            <a href="/register">注册账号</a>
-            <a href="#">忘记密码</a>
+            <Link to="/register">注册账号</Link>
+            <Link to="#">忘记密码</Link> 
           </div>
         </div>
       </div>

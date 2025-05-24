@@ -1,7 +1,7 @@
 {
   "name": "lifelong-journey",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "main": "electron/main.cjs",
   "description": "An Electron-based journey app",
@@ -12,23 +12,42 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "electron .",
-    "clean": "rimraf dist",
+    "clean": "rimraf dist dist_electron release out",
     "pack": "npm run clean && npm run build && electron-builder --win",
     "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\""
   },
   "build": {
     "appId": "com.lifelong.journey",
-    "productName": "LifelongJourneyApp",
+    "productName": "旅迹",
     "files": [
       "dist",
       "electron",
-      "package.json"
+      "server.cjs",
+      ".env",
+      "src/assets/icon.ico",
+      "package.json",
+   
+     {
+      "from": "public/fonts",
+      "to": "fonts",
+      "filter": ["**/*"]
+    }
     ],
+    
+    "extraFiles": [
+      {
+        "from": ".env",
+        "to": ".env"
+      }
+    ],
+  
+    "asar": false,
     "directories": {
       "buildResources": "assets"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "src/assets/icon.ico"
     }
   },
   "dependencies": {
@@ -37,6 +56,7 @@
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
+    "echarts": "^5.6.0",
     "express": "^5.1.0",
     "json2csv": "^6.0.0-alpha.2",
     "multer": "^1.4.5-lts.2",
@@ -72,7 +92,7 @@
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
     "concurrently": "^9.1.2",
-    "electron": "^35.1.5",
+    "electron": "^35.4.0",
     "electron-builder": "^26.0.12",
     "eslint": "^9.22.0",
     "eslint-plugin-react-hooks": "^5.2.0",
@@ -80,6 +100,7 @@
     "globals": "^16.0.0",
     "rimraf": "^6.0.1",
     "vite": "^6.3.1",
+    "vite-plugin-compression": "^0.5.1",
     "vite-plugin-electron": "^0.29.0",
     "vite-plugin-svgr": "^4.3.0",
     "wait-on": "^8.0.3"
