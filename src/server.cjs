@@ -290,29 +290,45 @@ app.get('/api/user-logs', (req, res) => {
 
 // 删除日志
 app.post('/api/delete-log', (req, res) => {
-  const { id, username } = req.body;
-  if (!id || !username || !/^[a-zA-Z0-9_]+$/.test(username)) {
-    return res.status(400).json({ message: '参数不合法' });
-  }
+    const { id, username } = req.body;
 
-  const logTable = `${username}_log`;
-  const deleteSQL = `DELETE FROM \`${logTable}\` WHERE id = ?`;
+    if (!id || !username || !/^[a-zA-Z0-9_]+$/.test(username)) {
+        return res.status(400).json({ message: '参数不合法' });
+    }
 
-  db.query(deleteSQL, [id], err => {
-    if (err) return res.status(500).json({ message: '删除日志失败' });
+    const logTable = `${username}_log`;
+    const deleteSQL = `DELETE FROM \`${logTable}\` WHERE id = ?`;
 
-    const updateStatsSQL = `
+    db.query(deleteSQL, [id], err => {
+        if (err) return res.status(500).json({ message: '删除日志失败' });
+
+        const updateStatsSQL = `
       UPDATE user SET 
         logs_count = (SELECT COUNT(*) FROM \`${logTable}\`),
         marked_count = (SELECT COUNT(DISTINCT location_name) FROM \`${logTable}\`)
       WHERE username = ?`;
 
-    db.query(updateStatsSQL, [username], err => {
-      if (err) return res.status(500).json({ message: '更新统计失败' });
-      res.json({ success: true, message: '日志删除成功' });
+        db.query(updateStatsSQL, [username], err => {
+            if (err) return res.status(500).json({ message: '更新统计失败' });
+
+            // 调用勋章更新逻辑
+            updateUserMedalsDetails(username, (err, result) => {
+                if (err) {
+                    console.error('更新勋章失败:', err);
+                    return res.status(500).json({ success: false, message: '更新勋章失败' });
+                }
+
+                res.json({
+                    success: true,
+                    message: '日志删除成功',
+                    medals_count: result.medalsCount,
+                    medals_details: result.medalsDetails,
+                });
+            });
+        });
     });
-  });
 });
+
 
 //获取用户所有标记地点
 app.get('/api/marked-locations',(req,res) => {
