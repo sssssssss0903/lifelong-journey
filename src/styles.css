@@ -862,7 +862,7 @@ h4 {
 
 
 .medal-scroll-container {
-    max-height: 400px; /* 或你页面上合适的高度 */
+    max-height: 400px; /* 或页面上合适的高度 */
     overflow-y: auto;
     padding-right: 10px; /* 避免滚动条遮挡内容 */
     border: 1px solid #eee;

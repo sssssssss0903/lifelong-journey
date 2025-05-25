@@ -104,19 +104,36 @@ export default function StatsChart({ logsData }) {
       if (geoRef.current) {
         const geoChart = echarts.getInstanceByDom(geoRef.current) || echarts.init(geoRef.current);
         geoChart.clear();
-        geoChart.setOption({
-          title: { text: '📍 经纬度分布图', left: 'center' },
-          tooltip: { trigger: 'item', formatter: '{b}<br/>经度: {c[0]}<br/>纬度: {c[1]}' },
-          xAxis: { type: 'value', name: '经度', min: -180, max: 180 },
-          yAxis: { type: 'value', name: '纬度', min: -90, max: 90 },
-          series: [{
-            name: '日志位置',
-            type: 'scatter',
-            data: geoPoints,
-            symbolSize: 10,
-            itemStyle: { color: '#91cc75' },
-          }]
-        });
+       geoChart.setOption({
+  title: { text: '📍 经纬度分布图', left: 'center' },
+  tooltip: { trigger: 'item', formatter: '{b}<br/>经度: {c[0]}<br/>纬度: {c[1]}' },
+  xAxis: {
+    type: 'value',
+    name: '经度',
+    min: -180,
+    max: 180,
+    splitNumber: 12,
+    axisLabel: { formatter: '{value}°' },
+    splitLine: { show: true, lineStyle: { type: 'dashed', color: '#ccc' } }
+  },
+  yAxis: {
+    type: 'value',
+    name: '纬度',
+    min: -90,
+    max: 90,
+    splitNumber: 9,
+    axisLabel: { formatter: '{value}°' },
+    splitLine: { show: true, lineStyle: { type: 'dashed', color: '#ccc' } }
+  },
+  series: [{
+    name: '日志位置',
+    type: 'scatter',
+    data: geoPoints,
+    symbolSize: 10,
+    itemStyle: { color: '#91cc75' }
+  }]
+});
+
       }
     } catch (err) {
       console.error('[经纬度散点图渲染失败]', err);

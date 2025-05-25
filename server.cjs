@@ -471,6 +471,40 @@ app.get('/api/user-medals', (req, res) => {
   });
 });
 
+// 获取所有日志信息（用于图表分析）
+app.get('/api/all-user-logs', (req, res) => {
+  const { username } = req.query;
+
+  if (!username || !/^[a-zA-Z0-9_]+$/.test(username)) {
+    console.warn('[获取所有日志] 非法用户名:', username);
+    return res.status(400).json({ error: '非法用户名' });
+  }
+
+  const logTable = `${username}_log`;
+  const sql = `
+    SELECT id, location_name, location_display_name, longitude, latitude, content, created_at
+    FROM \`${logTable}\`
+    ORDER BY created_at ASC
+  `;
+
+  console.log('[获取所有日志] SQL:', sql);
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('[获取所有日志] 查询失败:');
+      console.error('错误对象:', {
+        code: err.code,
+        errno: err.errno,
+        sqlMessage: err.sqlMessage,
+        sql: err.sql,
+      });
+      return res.status(500).json({ error: '查询失败' });
+    }
+
+    console.log(`[获取所有日志] 成功返回 ${results.length} 条日志记录`);
+    res.json({ logs: results });
+  });
+});
 
 // 启动服务
 app.listen(3001, () => {

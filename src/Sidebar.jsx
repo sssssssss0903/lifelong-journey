@@ -40,6 +40,18 @@ export default function Sidebar({ type = 'default', image, onClose, username, lo
 
   const [sidebarWidth, setSidebarWidth] = useState(400); // 初始宽度
   const [isResizing, setIsResizing] = useState(false);
+  const [allLogsData, setAllLogsData] = useState([]);
+ 
+  const fetchAllLogs = async () => {
+  try {
+    const res = await api.get('/api/all-user-logs', {
+      params: { username }
+    });
+    setAllLogsData(res.data.logs || []);
+  } catch (err) {
+    console.error('[图表] 获取全部日志失败:', err);
+  }
+};
 
 useEffect(() => {
   if (type === 'default' && username) {
@@ -271,7 +283,7 @@ const downloadLogFile = async ({ username, logId = '', type = 'csv' }) => {
 <button
   className="chart-button"
   onClick={async () => {
-    await fetchLogs(1); // 等 fetchLogs 完成后再显示图表
+   await fetchAllLogs();
     setShowStatsChart(true);
     setShowMedals(false);
     setShowLogs(false);
@@ -288,7 +300,7 @@ const downloadLogFile = async ({ username, logId = '', type = 'csv' }) => {
     <button onClick={() => setShowStatsChart(false)} className="btn-return">返回</button>
     <h4>📈 城市标记统计</h4>
  <Suspense fallback={<div>加载中...</div>}>
-  <StatsChart logsData={logDetails} />
+  <StatsChart logsData={allLogsData} />
 </Suspense>
   </div>
 ) : showLocations ? (
