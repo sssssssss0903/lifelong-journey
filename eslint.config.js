@@ -5,8 +5,10 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default [
   { ignores: ['dist'] },
+
+  // 前端配置
   {
-    files: ['**/*.{js,jsx}'],
+    files: ['src/**/*.{js,jsx}'],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
@@ -28,6 +30,24 @@ export default [
         'warn',
         { allowConstantExport: true },
       ],
+    },
+  },
+
+  //  后端 Node.js 配置
+  {
+    files: ['server/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.node, //  启用 Node.js 全局变量 (process, require 等)
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'commonjs', // 后端代码用 require，所以用 commonjs
+      },
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      'no-unused-vars': 'warn', // 后端调试时 console 和变量常见，设为 warn
+      'no-console': 'off',      // 允许 console.log
     },
   },
 ]

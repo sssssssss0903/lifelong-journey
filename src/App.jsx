@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom'; // 用 HashRouter
-import Login from './login';
-import Home from './Home';
-import Register from './Register';
+import Login from "./pages/Login";
+import Home from "./pages/Home";
+import Register from "./pages/Register";
+
 
 export default function App() {
   const [username, setUsername] = useState(localStorage.getItem('username') || '');

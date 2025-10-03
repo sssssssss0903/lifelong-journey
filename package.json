@@ -8,13 +8,14 @@
   "author": "echoss",
   "scripts": {
     "dev": "vite",
+    "dev:web": "concurrently \"node server.cjs\" \"vite\"",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "electron .",
     "clean": "rimraf dist dist_electron release out",
     "pack": "npm run clean && npm run build && electron-builder --win",
-    "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\""
+    "electron:dev": "concurrently \"node server.cjs\" \"vite\" \"wait-on http://localhost:5173 && electron .\""
   },
   "build": {
     "appId": "com.lifelong.journey",
@@ -25,22 +26,20 @@
       "server.cjs",
       ".env",
       "src/assets/icon.ico",
-      "package.json",
-   
-     {
-      "from": "public/fonts",
-      "to": "fonts",
-      "filter": ["**/*"]
-    }
+      {
+        "from": "public/fonts",
+        "to": "fonts",
+        "filter": [
+          "**/*"
+        ]
+      }
     ],
-    
     "extraFiles": [
       {
         "from": ".env",
         "to": ".env"
       }
     ],
-  
     "asar": false,
     "directories": {
       "buildResources": "assets"
@@ -65,7 +64,8 @@
     "pdfkit": "^0.17.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.5.0"
+    "react-router-dom": "^7.5.0",
+    "sharp": "^0.34.4"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.18.6",
