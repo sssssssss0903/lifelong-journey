@@ -1,0 +1,91 @@
+{
+  "hash": "ce613dfe",
+  "configHash": "4c38d377",
+  "lockfileHash": "7520908a",
+  "browserHash": "49e3dfb5",
+  "optimized": {
+    "react": {
+      "src": "../../../../node_modules/.pnpm/react@19.2.0/node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "e83d953b",
+      "needsInterop": true
+    },
+    "react-dom": {
+      "src": "../../../../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/index.js",
+      "file": "react-dom.js",
+      "fileHash": "a1880e49",
+      "needsInterop": true
+    },
+    "react/jsx-dev-runtime": {
+      "src": "../../../../node_modules/.pnpm/react@19.2.0/node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "858cc8fb",
+      "needsInterop": true
+    },
+    "react/jsx-runtime": {
+      "src": "../../../../node_modules/.pnpm/react@19.2.0/node_modules/react/jsx-runtime.js",
+      "file": "react_jsx-runtime.js",
+      "fileHash": "66219dca",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../../../node_modules/.pnpm/react-dom@19.2.0_react@19.2.0/node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "5fe72117",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../../../node_modules/.pnpm/react-router-dom@7.9.4_reac_c9ccbbedb7fff9cba41f10fd113da0f3/node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "2ced1559",
+      "needsInterop": false
+    },
+    "axios": {
+      "src": "../../../../node_modules/.pnpm/axios@1.12.2/node_modules/axios/index.js",
+      "file": "axios.js",
+      "fileHash": "525ad436",
+      "needsInterop": false
+    },
+    "@amap/amap-jsapi-loader": {
+      "src": "../../../../node_modules/.pnpm/@amap+amap-jsapi-loader@1.0.1/node_modules/@amap/amap-jsapi-loader/dist/index.js",
+      "file": "@amap_amap-jsapi-loader.js",
+      "fileHash": "6a27bd5b",
+      "needsInterop": true
+    },
+    "react-hook-form": {
+      "src": "../../../../node_modules/.pnpm/react-hook-form@7.64.0_react@19.2.0/node_modules/react-hook-form/dist/index.esm.mjs",
+      "file": "react-hook-form.js",
+      "fileHash": "73876c35",
+      "needsInterop": false
+    },
+    "zod": {
+      "src": "../../../../node_modules/.pnpm/zod@4.1.12/node_modules/zod/index.js",
+      "file": "zod.js",
+      "fileHash": "96fac835",
+      "needsInterop": false
+    },
+    "@hookform/resolvers/zod": {
+      "src": "../../../../node_modules/.pnpm/@hookform+resolvers@5.2.2_r_722aa23fd673d70e1be0334b64e7488d/node_modules/@hookform/resolvers/zod/dist/zod.mjs",
+      "file": "@hookform_resolvers_zod.js",
+      "fileHash": "48a47eb6",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-ODDBNXFZ": {
+      "file": "chunk-ODDBNXFZ.js"
+    },
+    "chunk-QWGSHBJ4": {
+      "file": "chunk-QWGSHBJ4.js"
+    },
+    "chunk-EFE6CW3B": {
+      "file": "chunk-EFE6CW3B.js"
+    },
+    "chunk-IFZIDP46": {
+      "file": "chunk-IFZIDP46.js"
+    },
+    "chunk-G3PMV62Z": {
+      "file": "chunk-G3PMV62Z.js"
+    }
+  }
+}

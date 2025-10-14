@@ -1,0 +1,22 @@
+{
+  "name": "@journey/backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node app.js",
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "json2csv": "6.0.0-alpha.2",
+    "multer": "^2.0.2",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.14.0",
+    "pdfkit": "^0.17.2",
+    "sharp": "^0.34.4"
+  }
+}

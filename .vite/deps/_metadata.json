@@ -1,61 +1,61 @@
 {
-  "hash": "581f6126",
-  "configHash": "33c92041",
+  "hash": "b4d46c30",
+  "configHash": "3255cd8b",
   "lockfileHash": "75c6975b",
-  "browserHash": "c2e25e10",
+  "browserHash": "d2396158",
   "optimized": {
     "react": {
       "src": "../../node_modules/react/index.js",
       "file": "react.js",
-      "fileHash": "70e74848",
+      "fileHash": "aaa11b48",
       "needsInterop": true
     },
     "react-dom": {
       "src": "../../node_modules/react-dom/index.js",
       "file": "react-dom.js",
-      "fileHash": "0b0beb6c",
+      "fileHash": "a4e4ed7b",
       "needsInterop": true
     },
     "react/jsx-dev-runtime": {
       "src": "../../node_modules/react/jsx-dev-runtime.js",
       "file": "react_jsx-dev-runtime.js",
-      "fileHash": "0235f74f",
+      "fileHash": "ee68ec08",
       "needsInterop": true
     },
     "react/jsx-runtime": {
       "src": "../../node_modules/react/jsx-runtime.js",
       "file": "react_jsx-runtime.js",
-      "fileHash": "7ab6cae9",
+      "fileHash": "4ecb714b",
       "needsInterop": true
     },
     "@amap/amap-jsapi-loader": {
       "src": "../../node_modules/@amap/amap-jsapi-loader/dist/index.js",
       "file": "@amap_amap-jsapi-loader.js",
-      "fileHash": "cc0e9319",
+      "fileHash": "c83d45a8",
       "needsInterop": true
     },
     "axios": {
       "src": "../../node_modules/axios/index.js",
       "file": "axios.js",
-      "fileHash": "c3a1a99a",
+      "fileHash": "74e0b1ff",
       "needsInterop": false
     },
     "echarts": {
       "src": "../../node_modules/echarts/index.js",
       "file": "echarts.js",
-      "fileHash": "da28e3c3",
+      "fileHash": "80358f66",
       "needsInterop": false
     },
     "react-dom/client": {
       "src": "../../node_modules/react-dom/client.js",
       "file": "react-dom_client.js",
-      "fileHash": "f4f9d395",
+      "fileHash": "c51ee163",
       "needsInterop": true
     },
     "react-router-dom": {
       "src": "../../node_modules/react-router-dom/dist/index.mjs",
       "file": "react-router-dom.js",
-      "fileHash": "ab22357f",
+      "fileHash": "9a8e0d21",
       "needsInterop": false
     }
   },

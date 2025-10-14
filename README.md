@@ -39,29 +39,19 @@
 
 ##  安装与运行
 
-1.修改项目根目录下.env中mysql配置
+修改项目根目录下.env中mysql配置
 
-2. 安装依赖
-```bash
-npm install
-```
+▶️ 启动前端：
+pnpm -F @journey/frontend dev
 
-3. 启动桌面应用
+▶️ 启动后端：
+pnpm -F @journey/backend dev
 
- 本项目内含 Electron 主进程文件，可配合 electron-builder 打包为桌面客户端。
+▶️ 启动 Electron：
+pnpm -F @journey/electron dev
 
-```bash
-npm run pack
-```
-打包成功后运行dist\win-unpacked下的应用程序即可。
+▶️ 统一安装某依赖到前端：
+pnpm -F @journey/frontend add lodash
 
-ps：网页端启动方法
-启动本地服务器
-```bash
-node server.cjs
-```
-启动网页端
-```bash
-npm run dev
-```
-
+▶️ 一键执行全部包的 lint：
+pnpm -r lint

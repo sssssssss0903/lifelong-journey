@@ -1,0 +1,16 @@
+{
+  "name": "@journey/electron",
+  "version": "1.0.0",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "dev": "wait-on http://localhost:5173 && electron .",
+    "start": "electron .",
+    "pack": "electron-builder --win"
+  },
+  "dependencies": {
+    "electron": "^38.2.2",
+    "electron-builder": "^26.0.12",
+    "wait-on": "^8.0.3"
+  }
+}
