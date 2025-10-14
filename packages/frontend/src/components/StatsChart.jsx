@@ -106,7 +106,14 @@ export default function StatsChart({ logsData }) {
         geoChart.clear();
        geoChart.setOption({
   title: { text: ' 经纬度分布图', left: 'center' },
-  tooltip: { trigger: 'item', formatter: '{b}<br/>经度: {c[0]}<br/>纬度: {c[1]}' },
+tooltip: {
+  trigger: 'item',
+  formatter: (params) => {
+    const [lng, lat] = params.value;
+    return `${params.name || '未知'}<br/>经度: ${lng.toFixed(4)}°<br/>纬度: ${lat.toFixed(4)}°`;
+  }
+},
+
   xAxis: {
     type: 'value',
     name: '经度',

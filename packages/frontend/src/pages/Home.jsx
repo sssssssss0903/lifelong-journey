@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import Sidebar from '../components/Sidebar';   // ⬅ Compound Components Sidebar
+import Sidebar from './Sidebar';   // ⬅ Compound Components Sidebar
 import AddPanel from './AddPanel';             // ⬅ 同级目录
 import '../styles.css';
 
