@@ -16,7 +16,11 @@ import { errorHandler } from './middlewares/errorHandler.js';
 const app = express();
 
 // 中间件
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // 精确指定前端来源
+  credentials: true,               //  允许携带 cookie/token
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // 让上传后的文件可直接访问
@@ -43,5 +47,5 @@ const PORT = config.PORT || 3001;
 app.listen(PORT, () => {
   console.log('静态资源目录:', path.join(process.cwd(), 'uploads'));
 
-  console.log(`✅ Server running at http://localhost:${PORT}`);
+  console.log(`  Server running at http://localhost:${PORT}`);
 });

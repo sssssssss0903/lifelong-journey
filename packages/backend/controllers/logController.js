@@ -15,7 +15,7 @@ export const uploadLog = async (req, res, next) => {
       content,
       longitude,
       latitude,
-      images, // ✅ 新增字段（数组）
+      images, //  新增字段（数组）
     } = req.body;
 
     const lng = parseFloat(longitude);
@@ -29,7 +29,7 @@ export const uploadLog = async (req, res, next) => {
       return res.status(400).json({ success: false, message: '经纬度不合法' });
     }
 
-    // ✅ 支持两种方式：
+    //  支持两种方式：
     let imagePaths = [];
 
     // ① 如果是 multipart/form-data 旧逻辑
@@ -84,9 +84,11 @@ export const uploadLog = async (req, res, next) => {
 // 查询用户日志
 export const getUserLogs = async (req, res, next) => {
   try {
-    const { username } = req.params;   // ✅ 从 params 取
+    const { username } = req.params;   //   从 params 取
     const { keyword = '', city = '', page = 1, limit = 10 } = req.query;
-
+   if (req.user.username !== req.params.username) {
+      return res.status(403).json({ success: false, message: '禁止访问他人数据' });
+    }
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
       return res.status(400).json({ error: '非法用户名' });
     }
@@ -133,7 +135,7 @@ export const getUserLogs = async (req, res, next) => {
 // 删除日志
 export const deleteLog = async (req, res, next) => {
   try {
-    const { username, id } = req.params; // ✅ 改成 params
+    const { username, id } = req.params; //   改成 params
 
     if (!id || !username || !/^[a-zA-Z0-9_]+$/.test(username)) {
       return res.status(400).json({ message: '参数不合法' });
@@ -165,7 +167,7 @@ export const deleteLog = async (req, res, next) => {
 // 获取标记地点
 export const getMarkedLocations = async (req, res, next) => {
   try {
-    const { username } = req.params;  // ✅ 从 params 取
+    const { username } = req.params;  //   从 params 取
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
       return res.status(400).json({ error: '非法用户名' });
     }

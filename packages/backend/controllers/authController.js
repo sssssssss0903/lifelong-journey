@@ -1,5 +1,6 @@
 
 import db from '../config/db.js';
+import { generateToken } from '../utils/jwt.js';
 
 // 登录
 export const login = (req, res) => {
@@ -7,13 +8,18 @@ export const login = (req, res) => {
   const sql = 'SELECT * FROM user WHERE username = ? AND password = ?';
 
   db.query(sql, [username, password], (err, results) => {
-    if (err) {
-      console.error('登录查询失败:', err);
-      return res.status(500).json({ success: false, message: '服务器错误' });
-    }
+    if (err) return res.status(500).json({ success: false, message: '服务器错误' });
 
     if (results.length > 0) {
-      res.json({ success: true, message: '登录成功', username: results[0].username });
+      const user = results[0];
+      const token = generateToken({ username: user.username });
+
+      res.json({
+        success: true,
+        message: '登录成功',
+        username: user.username,
+        token,
+      });
     } else {
       res.json({ success: false, message: '账号或密码错误' });
     }

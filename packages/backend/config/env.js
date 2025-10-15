@@ -16,7 +16,7 @@ export const config = {
   DB_USER: process.env.DB_USER || 'root',
   DB_PASSWORD: process.env.DB_PASSWORD || '',
   DB_NAME: process.env.DB_NAME || 'lifelong_journey',
-
+  JWT_SECRET: process.env.JWT_SECRET || 'my_secret_key',
   //  新增导出目录配置
   EXPORT_DIR: process.env.EXPORT_DIR 
     ? path.resolve(process.env.EXPORT_DIR) 

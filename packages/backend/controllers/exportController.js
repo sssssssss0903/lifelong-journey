@@ -70,7 +70,7 @@ export const exportLogs = async (req, res, next) => {
     // 字体路径
     const fontPath = path.join(projectRoot, 'public/fonts/noto.ttf');
     if (fs.existsSync(fontPath)) {
-      console.log(`✅ 使用字体文件: ${fontPath}`);
+      console.log(`  使用字体文件: ${fontPath}`);
       doc.font(fontPath);
     } else {
       console.warn(`⚠️ 未找到字体文件: ${fontPath}，将使用默认字体，可能导致乱码`);

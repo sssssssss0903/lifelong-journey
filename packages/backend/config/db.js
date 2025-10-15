@@ -36,9 +36,9 @@ export const initDB = () => {
 
   db.query(initSql, (err) => {
     if (err) {
-      console.error('❌ 数据库初始化失败:', err);
+      console.error(' 数据库初始化失败:', err);
     } else {
-      console.log('✅ 数据库初始化完成');
+      console.log(' 数据库初始化完成');
     }
   });
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import api from '../api';
+import api from '../api/request.js'
 
 /**
  * 管理用户相关数据（统计、日志、地点、勋章）

@@ -1,5 +1,4 @@
-// src/components/LogDetail.jsx
-import api from '../api';
+import api from '../api/request.js';
 
 export default function LogDetail({ log, onBack, onExport }) {
   if (!log) return null;
@@ -22,7 +21,7 @@ export default function LogDetail({ log, onBack, onExport }) {
         className="panel-content"
         style={{
           padding: '12px 16px',
-          maxWidth: '520px', // ✅ 固定最大宽度（防止内容太宽）
+          maxWidth: '520px', //   固定最大宽度（防止内容太宽）
           wordWrap: 'break-word', // 长单词自动换行
           overflowY: 'auto',
         }}
@@ -39,10 +38,10 @@ export default function LogDetail({ log, onBack, onExport }) {
             padding: '8px 10px',
             borderRadius: '6px',
             background: '#f9fafb',
-            whiteSpace: 'pre-wrap', // ✅ 自动换行 + 保留换行符
-            wordBreak: 'break-word', // ✅ 单词太长时也能换行
+            whiteSpace: 'pre-wrap', //  自动换行 + 保留换行符
+            wordBreak: 'break-word', //  单词太长时也能换行
             lineHeight: '1.6',
-            minHeight: '100px', // ✅ 视觉固定高度
+            minHeight: '100px', //  视觉固定高度
           }}
         >
           <strong>📝 日志内容：</strong>

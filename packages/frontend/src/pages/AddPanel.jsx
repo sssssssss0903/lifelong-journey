@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { uploadFileWithResume } from "../utils/uploader";
-import api from "../api";
+import api from '../api/request.js'
 
 export default function AddPanel({ onClose, coord, city, refreshLogs }) {
   const [location, setLocation] = useState(city || "");
@@ -70,7 +70,7 @@ export default function AddPanel({ onClose, coord, city, refreshLogs }) {
     <div
       className="add-panel"
       style={{
-        width: 420, // ✅ 固定宽度
+        width: 420, //   固定宽度
         height: "100%",
         display: "flex",
         flexDirection: "column",

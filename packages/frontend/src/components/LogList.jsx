@@ -48,21 +48,25 @@ export default function LogList({
           <div className="log-content" style={{ paddingRight: 60, wordBreak: 'break-word' }}>
             <div><strong>📍 地点：</strong>{log.location_display_name || log.location_name}</div>
 
-            {/* ✅ 限制为一行预览 + 不超宽度 */}
-            <div
-              style={{
-                display: 'block',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                maxWidth: '100%',
-                color: '#333',
-              }}
-              title={log.content} // 悬停显示完整内容
-            >
-              <span style={{ fontWeight: 700 }}>📝 内容：</span>
-              {log.content}
-            </div>
+            {/*   限制为一行预览 + 不超宽度 */}
+    <div
+  style={{
+    display: '-webkit-box',
+    WebkitBoxOrient: 'vertical',
+    WebkitLineClamp: 2, // 最多显示2行
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    wordBreak: 'break-word',
+    color: '#333',
+    maxWidth: '100%',
+    lineHeight: '1.4em',
+  }}
+  title={log.content}
+>
+  <span style={{ fontWeight: 700 }}>📝 内容：</span>
+  {log.content}
+</div>
+
 
             <div style={{ color: '#555' }}>
               <strong>🕒 时间：</strong>{new Date(log.created_at).toLocaleString()}
@@ -77,16 +81,15 @@ export default function LogList({
               onDeleteLog(log.id);
             }}
             style={{
-              position: 'absolute',
-              top: 4,
-              right: 4,
-              border: 'none',
-              background: '#ef4444',
-              color: '#fff',
-              borderRadius: 6,
-              padding: '4px 8px',
-              cursor: 'pointer',
-              fontSize: 12,
+        border: 'none',
+      background: '#ef4444',
+      color: '#fff',
+      borderRadius: 6,
+      padding: '6px 12px',
+      cursor: 'pointer',
+      fontSize: 13,
+      fontWeight: 600,
+      transition: 'background 0.2s',
             }}
           >
             删除

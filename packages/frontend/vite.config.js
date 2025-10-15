@@ -3,10 +3,8 @@ import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 import svgr from 'vite-plugin-svgr'
 import viteCompression from 'vite-plugin-compression'
-import path from 'path' // ✅ 必须加
 
-// ✅ 这里不需要 import tailwindcss 或 autoprefixer
-// 因为它们会自动从 postcss.config.js 加载
+
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')

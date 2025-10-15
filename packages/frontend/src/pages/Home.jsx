@@ -1,9 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
-import Sidebar from './Sidebar';   // ⬅ Compound Components Sidebar
-import AddPanel from './AddPanel';             // ⬅ 同级目录
-import '../styles.css';
-
-import api from '../api';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import Sidebar from './Sidebar';   
+import AddPanel from './AddPanel';          
+import '../assets/styles.css';
+import { getUserLogs } from '../api/index.js';
 import AMapLoader from '@amap/amap-jsapi-loader';
 
 export default function Home({ username }) {
@@ -15,56 +14,64 @@ export default function Home({ username }) {
   const [selectedLog, setSelectedLog] = useState(null);
   const [markedRegions, setMarkedRegions] = useState([]);
   const [mapReady, setMapReady] = useState(false);
+
   const mapInstanceRef = useRef(null);
 
-  // 初始化地图
-useEffect(() => {
-  const mapContainer = document.getElementById('gaode-map');
-  if (!mapContainer) return; // ✅ 防止 DOM 未挂载时报错
+  /** ------------------ 初始化地图 ------------------ */
+  useEffect(() => {
+    const mapContainer = document.getElementById('gaode-map');
+    if (!mapContainer) return;
 
-  window._AMapSecurityConfig = {
-    securityJsCode: 'fbce27ca4fb16e9fd96a2f7085b3fc23',
-  };
+    window._AMapSecurityConfig = {
+      securityJsCode: 'fbce27ca4fb16e9fd96a2f7085b3fc23',
+    };
 
-  if (mapInstanceRef.current) return; //  防止重复初始化
+    if (mapInstanceRef.current) return;
 
-  AMapLoader.load({
-    key: 'bdb03370210cd724f39ff61caa8981cd',
-    version: '2.0',
-    plugins: ['AMap.Marker', 'AMap.ToolBar', 'AMap.Scale', 'AMap.Geocoder', 'AMap.HeatMap', 'AMap.ControlBar']
-  }).then((AMap) => {
-    if (!document.getElementById('gaode-map')) return; //  二次检查
-    window.AMap = AMap;
+    AMapLoader.load({
+      key: 'bdb03370210cd724f39ff61caa8981cd',
+      version: '2.0',
+      plugins: [
+        'AMap.Marker',
+        'AMap.ToolBar',
+        'AMap.Scale',
+        'AMap.Geocoder',
+        'AMap.HeatMap',
+        'AMap.ControlBar'
+      ]
+    })
+      .then((AMap) => {
+        if (!document.getElementById('gaode-map')) return;
+        window.AMap = AMap;
 
-    const map = new AMap.Map('gaode-map', {
-      zoom: 5,
-      center: [104.114129, 37.550339],
-      resizeEnable: true,
-    });
-    mapInstanceRef.current = map;
+        const map = new AMap.Map('gaode-map', {
+          zoom: 5,
+          center: [104.114129, 37.550339],
+          resizeEnable: true,
+        });
+        mapInstanceRef.current = map;
 
-    AMap.plugin(['AMap.ToolBar', 'AMap.Scale', 'AMap.ControlBar'], () => {
-      map.addControl(new AMap.ToolBar({ position: 'RT' }));
-      map.addControl(new AMap.Scale({ position: 'LB' }));
-      map.addControl(new AMap.ControlBar({
-        showZoomBar: true,
-        showControlButton: true,
-        position: { right: '10px', top: '80px' }
-      }));
-      setMapReady(true);
-      if (username) fetchLogs();
-    });
-  }).catch((e) => console.error('地图加载失败:', e));
-}, []);
+        AMap.plugin(['AMap.ToolBar', 'AMap.Scale', 'AMap.ControlBar'], () => {
+          map.addControl(new AMap.ToolBar({ position: 'RT' }));
+          map.addControl(new AMap.Scale({ position: 'LB' }));
+          map.addControl(
+            new AMap.ControlBar({
+              showZoomBar: true,
+              showControlButton: true,
+              position: { right: '10px', top: '80px' },
+            })
+          );
+          setMapReady(true);
+        });
+      })
+      .catch((e) => console.error('地图加载失败:', e));
+  }, []);
 
-
-  // 拉取用户日志
-  const fetchLogs = async () => {
+  /** ------------------ 拉取用户日志 ------------------ */
+  const fetchLogs = useCallback(async () => {
     if (!username) return;
     try {
-      const res = await api.get(`/api/users/${username}/logs`, {
-        params: { limit: 1000 }
-      });
+      const res = await getUserLogs(username, { limit: 1000 });
       const logs = res.data.logs || [];
       setMarkedRegions(prev => {
         const prevStr = JSON.stringify(prev);
@@ -74,16 +81,51 @@ useEffect(() => {
     } catch (err) {
       console.error('获取日志失败:', err);
     }
-  };
+  }, [username]);
 
-  // 渲染 marker + 热力图
+  /** 等地图准备好、用户名存在、且 token 有效时再拉取日志 */
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (mapReady && username && token) {
+      fetchLogs();
+    }
+  }, [mapReady, username, fetchLogs]);
+
+  /** ------------------ 预处理热力图数据（useMemo） ------------------ */
+  const aggregatedHeatData = useMemo(() => {
+    const heatData = [];
+    markedRegions.forEach(log => {
+      const lng = parseFloat(log.longitude);
+      const lat = parseFloat(log.latitude);
+      if (!Number.isFinite(lng) || !Number.isFinite(lat)) return;
+      heatData.push({ lng, lat, count: 1 });
+    });
+
+    return Array.from(
+      heatData.reduce((map, { lng, lat }) => {
+        const key = `${lng.toFixed(4)},${lat.toFixed(4)}`;
+        const existing = map.get(key);
+        if (existing) existing.count++;
+        else map.set(key, { lng, lat, count: 1 });
+        return map;
+      }, new Map()).values()
+    );
+  }, [markedRegions]);
+
+  /** ------------------ 渲染 marker + 热力图 ------------------ */
+  const handleMarkerClick = useCallback((log, map) => {
+    const lng = parseFloat(log.longitude);
+    const lat = parseFloat(log.latitude);
+    setSelectedLog(log);
+    map.setZoom(12);
+    map.setCenter([lng, lat]);
+  }, []);
+
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map || !mapReady || !window.AMap || !window.AMap.HeatMap) return;
 
     map.clearMap();
-    const heatData = [];
-
     markedRegions.forEach(log => {
       const lng = parseFloat(log.longitude);
       const lat = parseFloat(log.latitude);
@@ -107,27 +149,8 @@ useEffect(() => {
         offset: new window.AMap.Pixel(-9, -9)
       });
 
-      marker.on('click', () => {
-        setSelectedLog(log);
-        map.setZoom(12);
-        map.setCenter([lng, lat]);
-      });
-
-      heatData.push({ lng, lat, count: 1 });
+      marker.on('click', () => handleMarkerClick(log, map));
     });
-
-    const aggregatedHeatData = Array.from(
-      heatData.reduce((map, { lng, lat }) => {
-        const key = `${lng.toFixed(4)},${lat.toFixed(4)}`;
-        const existing = map.get(key);
-        if (existing) {
-          existing.count++;
-        } else {
-          map.set(key, { lng, lat, count: 1 });
-        }
-        return map;
-      }, new Map()).values()
-    );
 
     if (window.heatmapInstance) {
       window.heatmapInstance.setMap(null);
@@ -147,12 +170,12 @@ useEffect(() => {
       heatmap.setDataSet({ data: aggregatedHeatData, max: 10 });
       window.heatmapInstance = heatmap;
     });
-  }, [markedRegions, mapReady]);
+  }, [aggregatedHeatData, markedRegions, mapReady, handleMarkerClick]);
 
-  // 地图点击添加坐标
+  /** ------------------ 地图点击添加坐标 ------------------ */
   useEffect(() => {
     const map = mapInstanceRef.current;
-    if (!map || !addingMode) return;
+    if (!map || !addingMode || !mapReady) return;
 
     const handleClick = (e) => {
       const coord = [e.lnglat.getLng(), e.lnglat.getLat()];
@@ -163,8 +186,10 @@ useEffect(() => {
         geocoder.getAddress(coord, (status, result) => {
           const comp = result?.regeocode?.addressComponent;
           const city = comp?.city || comp?.province || comp?.district || '未知城市';
-          if (!city || city === '[]') return alert('⚠️ 无法识别城市名称，请点击城市区域');
-
+          if (!city || city === '[]') {
+            alert('⚠️ 无法识别城市名称，请点击城市区域');
+            return;
+          }
           setSelectedCityName(city);
           setAddPanelOpen(true);
         });
@@ -175,9 +200,20 @@ useEffect(() => {
 
     map.on('click', handleClick);
     return () => map.off('click', handleClick);
+  }, [addingMode, mapReady]);
+
+  /** ------------------ 添加模式光标切换 ------------------ */
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+    if (addingMode) {
+      map.setDefaultCursor('crosshair'); // 十字瞄准
+    } else {
+      map.setDefaultCursor('grab'); // 普通手型
+    }
   }, [addingMode]);
 
-  // 如果选择了日志，关闭侧边栏和添加面板
+  /** ------------------ 切换面板 ------------------ */
   useEffect(() => {
     if (selectedLog) {
       setSidebarOpen(false);
@@ -185,6 +221,7 @@ useEffect(() => {
     }
   }, [selectedLog]);
 
+  /** ------------------ 渲染 ------------------ */
   return (
     <div className="home-container">
       {addPanelOpen ? (
@@ -199,7 +236,6 @@ useEffect(() => {
         />
       ) : sidebarOpen ? (
         <Sidebar username={username} refreshLogs={fetchLogs}>
-      
           <Sidebar.UserInfo />
           <Sidebar.Stats />
           <Sidebar.LogList />
@@ -224,12 +260,15 @@ useEffect(() => {
         </div>
       </div>
 
+      {/* “添加模式”按钮 */}
       <button
         onClick={() => {
+          if (!mapReady) return alert('地图尚未加载完成');
           setAddingMode(true);
           setSidebarOpen(false);
           setAddPanelOpen(false);
           setSelectedLog(null);
+          alert('请点击地图选择一个位置');
         }}
         className="plus-button"
       >+</button>
