@@ -18,37 +18,45 @@ export default function Home({ username }) {
   const mapInstanceRef = useRef(null);
 
   // 初始化地图
-  useEffect(() => {
-    window._AMapSecurityConfig = {
-      securityJsCode: 'fbce27ca4fb16e9fd96a2f7085b3fc23',
-    };
+useEffect(() => {
+  const mapContainer = document.getElementById('gaode-map');
+  if (!mapContainer) return; // ✅ 防止 DOM 未挂载时报错
 
-    AMapLoader.load({
-      key: 'bdb03370210cd724f39ff61caa8981cd',
-      version: '2.0',
-      plugins: ['AMap.Marker', 'AMap.ToolBar', 'AMap.Scale', 'AMap.Geocoder', 'AMap.HeatMap', 'AMap.ControlBar']
-    }).then((AMap) => {
-      window.AMap = AMap;
-      const map = new AMap.Map('gaode-map', {
-        zoom: 5,
-        center: [104.114129, 37.550339],
-        resizeEnable: true,
-      });
-      mapInstanceRef.current = map;
+  window._AMapSecurityConfig = {
+    securityJsCode: 'fbce27ca4fb16e9fd96a2f7085b3fc23',
+  };
 
-      AMap.plugin(['AMap.ToolBar', 'AMap.Scale', 'AMap.ControlBar'], () => {
-        map.addControl(new AMap.ToolBar({ position: 'RT' }));
-        map.addControl(new AMap.Scale({ position: 'LB' }));
-        map.addControl(new AMap.ControlBar({
-          showZoomBar: true,
-          showControlButton: true,
-          position: { right: '10px', top: '80px' }
-        }));
-        setMapReady(true);
-        if (username) fetchLogs();
-      });
+  if (mapInstanceRef.current) return; //  防止重复初始化
+
+  AMapLoader.load({
+    key: 'bdb03370210cd724f39ff61caa8981cd',
+    version: '2.0',
+    plugins: ['AMap.Marker', 'AMap.ToolBar', 'AMap.Scale', 'AMap.Geocoder', 'AMap.HeatMap', 'AMap.ControlBar']
+  }).then((AMap) => {
+    if (!document.getElementById('gaode-map')) return; //  二次检查
+    window.AMap = AMap;
+
+    const map = new AMap.Map('gaode-map', {
+      zoom: 5,
+      center: [104.114129, 37.550339],
+      resizeEnable: true,
     });
-  }, []);
+    mapInstanceRef.current = map;
+
+    AMap.plugin(['AMap.ToolBar', 'AMap.Scale', 'AMap.ControlBar'], () => {
+      map.addControl(new AMap.ToolBar({ position: 'RT' }));
+      map.addControl(new AMap.Scale({ position: 'LB' }));
+      map.addControl(new AMap.ControlBar({
+        showZoomBar: true,
+        showControlButton: true,
+        position: { right: '10px', top: '80px' }
+      }));
+      setMapReady(true);
+      if (username) fetchLogs();
+    });
+  }).catch((e) => console.error('地图加载失败:', e));
+}, []);
+
 
   // 拉取用户日志
   const fetchLogs = async () => {

@@ -12,7 +12,7 @@ export default function StatsChart({ logsData }) {
 
     const cityMap = {};
     const monthMap = {};
-    const geoPoints = [];
+    const geoPoints = [];  
 
     logsData.forEach(log => {
       const city = log.location_name || '未知';
