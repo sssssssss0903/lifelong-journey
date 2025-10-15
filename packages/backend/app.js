@@ -16,11 +16,24 @@ import { errorHandler } from './middlewares/errorHandler.js';
 const app = express();
 
 // 中间件
-app.use(cors({
-  origin: 'http://localhost:5173', // 精确指定前端来源
-  credentials: true,               //  允许携带 cookie/token
+const allowedOrigins = [
+  'http://localhost:5173',   // 开发
+  'http://localhost:4173',   // 预览
+];
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);  //  允许该来源
+      } else {
+        callback(new Error(' Not allowed by CORS'));
+      }
+    },
+    credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // 让上传后的文件可直接访问
@@ -38,7 +51,6 @@ app.use('/api/exports', exportRoutes);
 app.use('/api', uploadRoutes);
 
 
-//app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // 全局错误处理
 app.use(errorHandler);

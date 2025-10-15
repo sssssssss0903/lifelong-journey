@@ -1,13 +1,47 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-   <link rel="icon" type="image/x-icon" href="/icon.ico" />
+
+    <!--   SEO 基本信息 -->
+    <meta
+      name="description"
+      content="旅迹 · Lifelong Journey —— 一款基于地图打卡与日志记录的可视化应用，让你用足迹记录人生旅程。"
+    />
+    <meta
+      name="keywords"
+      content="旅迹, Lifelong Journey, 地图打卡, 日志记录, React, 地理可视化, ECharts"
+    />
+    <meta name="robots" content="index, follow" />
+
+    <!--   移动端视口 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>旅迹</title>
+
+    <!--   网站图标 -->
+    <link rel="icon" type="image/x-icon" href="/icon.ico" />
+
+    <!--   预加载首屏关键图片（LCP 优化） -->
+    <link rel="preload" as="image" href="/assets/bg1.webp" fetchpriority="high" />
+    <link rel="preload" as="image" href="/assets/bg2.webp" fetchpriority="high" />
+    <link rel="preload" as="image" href="/assets/map-1200.webp" fetchpriority="high" />
+
+    <!--   页面标题 -->
+    <title>旅迹 · Lifelong Journey</title>
+
+    <!--   可选：社交分享卡片 -->
+    <meta property="og:title" content="旅迹 · Lifelong Journey" />
+    <meta
+      property="og:description"
+      content="记录你的足迹与故事，在世界地图上可视化人生旅程。"
+    />
+    <meta property="og:image" content="/assets/cover.webp" />
+    <meta property="og:type" content="website" />
   </head>
+
   <body>
     <div id="root"></div>
+
+    <!--   加载入口 -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

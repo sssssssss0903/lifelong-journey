@@ -1,6 +1,7 @@
 {
   "name": "lifelong-journey",
   "private": true,
+   "sideEffects": false,
   "version": "1.0.0",
   "type": "module",
   "description": "An Electron + React + Express workspace app",
@@ -16,7 +17,8 @@
   },
   "devDependencies": {
     "eslint": "^9.22.0",
-    "rimraf": "^6.0.1"
+    "rimraf": "^6.0.1",
+    "vite-plugin-imagemin": "^0.6.1"
   },
   "workspaces": [
     "packages/*"

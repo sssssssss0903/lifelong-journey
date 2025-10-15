@@ -53,7 +53,7 @@ export default function LogList({
   style={{
     display: '-webkit-box',
     WebkitBoxOrient: 'vertical',
-    WebkitLineClamp: 2, // 最多显示2行
+    WebkitLineClamp: 1, // 最多显示2行
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     wordBreak: 'break-word',
@@ -69,7 +69,9 @@ export default function LogList({
 
 
             <div style={{ color: '#555' }}>
-              <strong>🕒 时间：</strong>{new Date(log.created_at).toLocaleString()}
+              <span style={{ whiteSpace: 'nowrap' }}>
+  {new Date(log.created_at).toLocaleDateString()} {new Date(log.created_at).toLocaleTimeString()}
+</span>
             </div>
           </div>
 

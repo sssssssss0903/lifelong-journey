@@ -1,5 +1,31 @@
-import React, { useEffect, useRef } from 'react';
-import * as echarts from 'echarts';
+import { useEffect, useRef } from 'react';
+
+//  按需引入核心和组件
+import * as echarts from 'echarts/core';
+import { BarChart, LineChart, PieChart, ScatterChart } from 'echarts/charts';
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent,
+  DatasetComponent
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+
+//  注册用到的图表和组件
+echarts.use([
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent,
+  DatasetComponent,
+  BarChart,
+  LineChart,
+  PieChart,
+  ScatterChart,
+  CanvasRenderer
+]);
+
 
 export default function StatsChart({ logsData }) {
   const barRef = useRef(null);

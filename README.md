@@ -113,7 +113,16 @@ SECRET_KEY =your_secret_key
  
  <li> <b>Axios 请求封装</b>：统一封装 <code>Axios</code> 实例， 通过请求拦截器自动注入 <code>Authorization</code> Token， 响应拦截器集中处理异常与鉴权失效（401 自动跳转登录）， 提高接口调用安全性与可维护性。 </li> 
 
- <li> <b>JWT 鉴权机制</b>：后端基于 <code>jsonwebtoken</code> 实现身份认证， 登录成功后颁发 Token 并存储于前端， 通过中间件 <code>authMiddleware</code> 对受保护路由进行权限校验， 保证数据访问安全。 </li> <li> <b>多格式导出功能</b>：支持将日志数据与图表结果导出为 PDF 或 CSV， 自动生成图文报告用于归档与分享，提升数据可移植性。 </li> <li> <b>渲染与交互性能优化</b>： 使用 React Hooks（<code>useMemo</code>、<code>useCallback</code>）优化渲染， 引入懒加载与条件渲染减少不必要的重绘， 保证地图与图表在大量数据下依然保持流畅。 </li> <li> <b>后端 RESTful 服务架构</b>： 基于 <code>Node.js + Express + MySQL</code> 构建， 模块化划分控制器、路由与中间件， 提供日志分页查询、模糊搜索、标记统计等接口， 数据结构清晰、扩展性强。 </li> <li> <b>多用户数据隔离</b>： 为每位用户动态创建独立日志表（<code>{username}_log</code>）， 实现用户数据分库管理与高并发安全存储。 </li> <li> <b>跨域与安全配置</b>： 使用 <code>cors</code> 精确设置跨域白名单， 支持携带 Cookie 与 Token， 配合 <code>dotenv</code> 管理环境变量与数据库密钥，确保部署安全。 </li> </ul>
+ <li> <b>JWT 鉴权机制</b>：后端基于 <code>jsonwebtoken</code> 实现身份认证， 登录成功后颁发 Token 并存储于前端， 通过中间件 <code>authMiddleware</code> 对受保护路由进行权限校验， 保证数据访问安全。 </li>
+ 
+  <li> <b>多格式导出功能</b>：支持将日志数据与图表结果导出为 PDF 或 CSV， 自动生成图文报告用于归档与分享，提升数据可移植性。 </li> 
+  
+  <li> <b>渲染与交互性能优化</b>： 使用 React Hooks（<code>useMemo</code>、<code>useCallback</code>）优化渲染， 引入懒加载与条件渲染减少不必要的重绘， 保证地图与图表在大量数据下依然保持流畅。 </li> 
+  
+  <li> <b>后端 RESTful 服务架构</b>： 基于 <code>Node.js + Express + MySQL</code> 构建， 模块化划分控制器、路由与中间件， 提供日志分页查询、模糊搜索、标记统计等接口， 数据结构清晰、扩展性强。 </li> 
+  <li> <b>多用户数据隔离</b>： 为每位用户动态创建独立日志表（<code>{username}_log</code>）， 实现用户数据分库管理与高并发安全存储。 </li>
 
+   <li> <b>跨域与安全配置</b>： 使用 <code>cors</code> 精确设置跨域白名单， 支持携带 Cookie 与 Token， 配合 <code>dotenv</code> 管理环境变量与数据库密钥，确保部署安全。 </li> </ul>
 
+- 项目通过 Gzip 与 Brotli 双压缩、图片资源自动优化（mozjpeg + WebP）、SVGR 内联矢量图、路径别名与按环境构建策略，实现前端加载速度与运行性能的显著提升
 

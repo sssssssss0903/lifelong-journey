@@ -3,7 +3,9 @@ import Sidebar from './Sidebar';
 import AddPanel from './AddPanel';          
 import '../assets/styles.css';
 import { getUserLogs } from '../api/index.js';
-import AMapLoader from '@amap/amap-jsapi-loader';
+const AMapLoader = await import('@amap/amap-jsapi-loader').then(m => m.default || m);
+
+
 
 export default function Home({ username }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
