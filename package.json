@@ -10,7 +10,6 @@
     "dev": "pnpm --filter @journey/frontend dev",
     "dev:web": "pnpm --filter @journey/frontend dev",
     "dev:backend": "pnpm --filter @journey/backend dev",
-    "dev:electron": "pnpm --filter @journey/electron dev",
     "lint": "eslint .",
     "clean": "rimraf node_modules pnpm-lock.yaml **/node_modules",
     "install:all": "pnpm install"

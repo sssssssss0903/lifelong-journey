@@ -68,18 +68,17 @@ lifelong-journey/
 ### 后端
 
 ```bash
-cd packages/backend
-pnpm install
-pnpm run dev
+ pnpm dev:backend
 ```
 
 ### 前端
 
 ```bash
-cd packages/frontend
-pnpm install
-pnpm run dev
+pnpm build 
+pnpm preview
+# pnpm  dev
 ```
+
 
 ## 环境变量配置
 
@@ -102,27 +101,4 @@ SECRET_KEY =your_secret_key
 * 用户统计与标记地点统计
 * 打卡热力图与数据图表展示
 * 日志导出
-
-
-## 项目亮点
-
-<ul>
- <li> <b>接入高德地图 API</b>：实现地图地理位置标记、坐标拾取与热力图显示功能， 支持用户在全国范围内选择任意位置进行日志打卡，并动态可视化地理分布。 </li> 
- <li> <b>构建数据可视化面板</b>：基于 <b>ECharts</b> 实现多维度统计展示， 包括日志上传趋势、地区分布热力图、城市打卡数量排行等图表， 帮助用户直观了解个人活动轨迹与成长过程。 </li> 
- <li> <b>文件上传模块优化</b>：支持多图上传与预览， 使用 <b>文件分块上传</b> + <b>文件 Hash 校验</b> 实现断点续传与秒传功能， 大幅提升上传性能与用户体验。 </li> 
- 
- <li> <b>Axios 请求封装</b>：统一封装 <code>Axios</code> 实例， 通过请求拦截器自动注入 <code>Authorization</code> Token， 响应拦截器集中处理异常与鉴权失效（401 自动跳转登录）， 提高接口调用安全性与可维护性。 </li> 
-
- <li> <b>JWT 鉴权机制</b>：后端基于 <code>jsonwebtoken</code> 实现身份认证， 登录成功后颁发 Token 并存储于前端， 通过中间件 <code>authMiddleware</code> 对受保护路由进行权限校验， 保证数据访问安全。 </li>
- 
-  <li> <b>多格式导出功能</b>：支持将日志数据与图表结果导出为 PDF 或 CSV， 自动生成图文报告用于归档与分享，提升数据可移植性。 </li> 
-  
-  <li> <b>渲染与交互性能优化</b>： 使用 React Hooks（<code>useMemo</code>、<code>useCallback</code>）优化渲染， 引入懒加载与条件渲染减少不必要的重绘， 保证地图与图表在大量数据下依然保持流畅。 </li> 
-  
-  <li> <b>后端 RESTful 服务架构</b>： 基于 <code>Node.js + Express + MySQL</code> 构建， 模块化划分控制器、路由与中间件， 提供日志分页查询、模糊搜索、标记统计等接口， 数据结构清晰、扩展性强。 </li> 
-  <li> <b>多用户数据隔离</b>： 为每位用户动态创建独立日志表（<code>{username}_log</code>）， 实现用户数据分库管理与高并发安全存储。 </li>
-
-   <li> <b>跨域与安全配置</b>： 使用 <code>cors</code> 精确设置跨域白名单， 支持携带 Cookie 与 Token， 配合 <code>dotenv</code> 管理环境变量与数据库密钥，确保部署安全。 </li> </ul>
-
-- 项目通过 Gzip 与 Brotli 双压缩、图片资源自动优化（mozjpeg + WebP）、SVGR 内联矢量图、路径别名与按环境构建策略，实现前端加载速度与运行性能的显著提升
 
