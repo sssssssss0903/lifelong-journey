@@ -29,4 +29,4 @@ export const deleteLog = (username, id) =>
  * @param {string} username
  */
 export const getMarkedLocations = (username) =>
-  api.get(`/api/users/${username}/marked`);
+  api.get(`/api/users/${username}/locations`);

@@ -4,7 +4,7 @@ import { resolve } from 'path'
 import svgr from 'vite-plugin-svgr'
 import viteCompression from 'vite-plugin-compression'
 import viteImagemin from 'vite-plugin-imagemin'
-
+import { visualizer } from 'rollup-plugin-visualizer'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const isProd = mode === 'production'
@@ -13,6 +13,12 @@ export default defineConfig(({ mode }) => {
   const plugins = [
     react(),
     svgr(),
+     visualizer({
+      filename: 'stats.html',
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
+    }),
   ]
 
   //  仅生产环境使用压缩与图片优化
