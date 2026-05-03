@@ -1,7 +1,11 @@
 import { useState, useEffect, Suspense, lazy } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-const Login = lazy(() => import('./pages/Login'));
+// Login 同步加载：99% 用户首次落地是 Login 页，lazy 会让 Suspense fallback 顶 200-400ms
+// 推迟 LCP；Login 组件本身只有几 KB，不值得 lazy
+import Login from './pages/Login';
+
+// Home / Register 保持 lazy：Home 拖着 amap/echarts 重型依赖，Register 是低频路径
 const Home = lazy(() => import('./pages/Home'));
 const Register = lazy(() => import('./pages/Register'));
 

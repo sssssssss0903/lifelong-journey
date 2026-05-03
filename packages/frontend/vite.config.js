@@ -69,10 +69,16 @@ export default defineConfig(({ mode }) => {
       __APP_ENV__: env.APP_ENV,
     },
 
-    //  依赖预构建
+    //  依赖预构建（修复重复 include 键的 bug，合并到一个数组）
     optimizeDeps: {
-      include: ['react', 'react-dom', 'react-router-dom', 'axios', 'zustand'],
-      exclude: ['@amap/amap-jsapi-loader'], // 非首屏资源排除
+      include: [
+        'react',
+        'react-dom',
+        'react-router-dom',
+        'axios',
+        'zustand',
+        '@amap/amap-jsapi-loader', // CJS 模块需要预构建
+      ],
     },
 
     // 构建优化
@@ -80,12 +86,30 @@ export default defineConfig(({ mode }) => {
       target: 'esnext', // 输出现代语法，减少 polyfill
       sourcemap: false,
       minify: 'esbuild', // 替代 Terser
+      cssCodeSplit: true, // CSS 按 chunk 拆分，避免一份大 CSS 阻塞首屏
+      assetsInlineLimit: 4096, // 4KB 以下资源 base64 内联，减少请求数
+      chunkSizeWarningLimit: 600,
       rollupOptions: {
-        treeshake: true, 
+        treeshake: true,
         output: {
-          manualChunks: {
-            react: ['react', 'react-dom', 'react-router-dom'],
-            vendor: ['axios', 'zustand'],
+          // 把重型第三方库单独拆 chunk，便于浏览器长缓存命中
+          // 业务代码改动不会让 react/echarts/amap 这些大块缓存失效
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+                return 'react';
+              }
+              if (id.includes('echarts') || id.includes('zrender')) {
+                return 'charts'; // ECharts 大约 400KB，独立 chunk 懒加载场景再拉
+              }
+              if (id.includes('@amap') || id.includes('amap-jsapi')) {
+                return 'map'; // AMap loader 单独拆，Login 页不会拉
+              }
+              if (id.includes('axios') || id.includes('zustand')) {
+                return 'vendor';
+              }
+              return 'deps';
+            }
           },
         },
       },

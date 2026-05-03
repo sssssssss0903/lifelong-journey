@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import '../assets/styles.css';    
-import bg1 from "../assets/bg1.png";  
-import bg2 from "../assets/bg2.png";  
-import mapImg from '../assets/map.png';
+import bg1 from "../assets/bg1.webp";
+import bg2 from "../assets/bg2.webp";
+import mapImg from '../assets/map-1900.webp';
 import { Link } from 'react-router-dom';
 import { register } from '../api/index.js';  // 自动从 index.js 汇总导出
 
@@ -20,18 +20,12 @@ export default function Register() {
   }
 
   try {
-    const res = await register({ username, password }); //   使用封装后的 register 函数
-    alert(res.data.message);
-
-    if (res.data.success) {
-      navigate('/'); // 注册成功后跳转登录页
-    }
+    // 新后端 RESTful：成功 201；失败拦截器已经处理 4xx（409 用户名已用 / 400 参数错）
+    await register({ username, password });
+    alert('注册成功');
+    navigate('/');
   } catch (err) {
-    if (err.response) {
-      alert(err.response.data?.message || '注册失败');
-    } else {
-      alert('网络错误，请检查后端服务是否启动');
-    }
+    if (!err.response) alert('网络错误，请检查后端服务是否启动');
   }
 };
 

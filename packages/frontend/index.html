@@ -20,6 +20,17 @@
     <!--  网站图标 -->
     <link rel="icon" type="image/x-icon" href="/icon.ico" />
 
+    <!-- 关键域名 DNS 预解析 + 连接预热（首屏地图、后端 API） -->
+    <link rel="dns-prefetch" href="//webapi.amap.com" />
+    <link rel="dns-prefetch" href="//restapi.amap.com" />
+    <link rel="preconnect" href="https://webapi.amap.com" crossorigin />
+    <link rel="preconnect" href="https://restapi.amap.com" crossorigin />
+    <link rel="preconnect" href="http://localhost:3001" />
+
+    <!-- LCP 图预加载：HTML 解析阶段就开始下载，比 JS import 早 ~500ms -->
+    <link rel="preload" as="image" href="/bg1.webp" type="image/webp" fetchpriority="high" />
+    <link rel="preload" as="image" href="/bg2.webp" type="image/webp" />
+
     <!--  页面标题 -->
     <title>旅迹 · Lifelong Journey</title>
 

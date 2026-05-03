@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import '../assets/styles.css';
 
-//  所有首屏图像
-import bg1 from '../assets/bg1.webp';
-import bg2 from '../assets/bg2.webp';
+//  首屏 LCP 图走 public 稳定路径，跟 index.html 的 <link rel=preload> 命中同一缓存
+//  (不再走 src/assets import 让 Vite hash，否则 preload URL 和 img src URL 不一致)
+const bg1 = '/bg1.webp';
+const bg2 = '/bg2.webp';
+//  非 LCP 图（地图）保持 hash，享受长缓存
 import mapLarge from '../assets/map-1900.webp';
 import mapMedium from '../assets/map-1200.webp';
 import mapSmall from '../assets/map-800.webp';
@@ -23,18 +25,15 @@ export default function Login({ setUsername }) {
     }
 
     try {
+      // 新后端 RESTful：登录成功 201，失败由 axios 拦截器 throw（401 → message 已挂 err.message）
       const { data } = await login({ username: inputUsername, password });
-      if (data.success) {
-        localStorage.setItem('username', data.username);
-        localStorage.setItem('token', data.token);
-        setUsername(data.username);
-        navigate('/home');
-      } else {
-        alert(data.message || '账号或密码错误');
-      }
+      localStorage.setItem('username', data.username);
+      localStorage.setItem('token', data.token);
+      setUsername(data.username);
+      navigate('/home');
     } catch (err) {
-      console.error('登录请求失败:', err);
-      alert('登录失败，请检查服务是否启动');
+      // 拦截器已经 alert 过 4xx；这里兜底网络错误
+      if (!err.response) alert('登录失败，请检查服务是否启动');
     }
   }
 
@@ -59,16 +58,17 @@ export default function Login({ setUsername }) {
           <picture className="login-map">
             <source srcSet={mapSmall} type="image/webp" media="(max-width: 800px)" />
             <source srcSet={mapMedium} type="image/webp" media="(max-width: 1400px)" />
-         <img
-  src={mapLarge}
-  alt="Map"
-  fetchPriority="high"
-  loading="eager"
-  decoding="async"
-  width="863"
-  height="471"
-  style={{ width: '100%', height: 'auto' }}
-/>
+            {/* 只有 bg1 overlay 是 LCP 主图，标 high；map 让渡为 auto 避免抢带宽 */}
+            <img
+              src={mapLarge}
+              alt="Map"
+              fetchPriority="auto"
+              loading="eager"
+              decoding="async"
+              width="863"
+              height="471"
+              style={{ width: '100%', height: 'auto' }}
+            />
           </picture>
         </div>
 

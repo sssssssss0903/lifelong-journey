@@ -1,33 +1,15 @@
 import api from './request';
 
-/**
- * 用户登录
- * @param {Object} data - 登录信息 { username, password }
- * @returns {Promise} axios响应
- */
-export const login = (data) => api.post('/api/auth/login', data);
+// 登录 → POST /api/sessions （创建会话资源）
+export const login = (data) => api.post('/api/sessions', data);
 
-/**
- * 用户注册
- * @param {Object} data - 注册信息
- */
-export const register = (data) => api.post('/api/auth/register', data);
+// 注册 → POST /api/users  （创建用户资源）
+export const register = (data) => api.post('/api/users', data);
 
-/**
- * 获取当前用户信息
- */
-export const getProfile = () => api.get('/api/users/profile');
-/**
- * 获取用户统计信息
- * @param {string} username 用户名
- * @returns Promise
- */
+// 用户统计
 export const getUserStats = (username) =>
   api.get(`/api/users/${username}/stats`);
 
-/**
- * 更新勋章（触发服务器重新计算）
- * @param {string} username
- */
+// 重算勋章 → PUT 幂等更新
 export const updateUserMedals = (username) =>
-  api.post(`/api/users/${username}/medals`);
+  api.put(`/api/users/${username}/medals`);

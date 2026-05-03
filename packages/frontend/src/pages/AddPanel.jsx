@@ -55,12 +55,14 @@ export default function AddPanel({ onClose, coord, city, refreshLogs }) {
         content,
         images: imageUrls,
       };
-      const res = await api.post(`/api/users/${username}/logs`, payload);
-      alert(res.data.message || "提交成功");
+      await api.post(`/api/users/${username}/logs`, payload);
+      // 后端 201 Created，body 是新资源本身；这里不再依赖 message 字段
+      alert("提交成功");
       await refreshLogs?.();
       onClose();
     } catch (err) {
-      alert(err.response?.data?.message || "提交失败");
+      // 拦截器已 alert 过 4xx；兜底
+      if (!err.response) alert("提交失败");
     } finally {
       setSubmitting(false);
     }

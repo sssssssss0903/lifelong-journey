@@ -5,6 +5,7 @@ import { Parser } from 'json2csv';
 import PDFDocument from 'pdfkit';
 import { config } from '../config/env.js';
 import { fileURLToPath } from 'url';
+import { BadRequest, NotFound, Forbidden } from '../utils/apiResponse.js';
 
 // __dirname 替代方案 (ESM 模块)
 const __filename = fileURLToPath(import.meta.url);
@@ -23,7 +24,14 @@ export const exportLogs = async (req, res, next) => {
     const { username, type = 'csv', logId } = req.query;
 
     if (!username || !/^[a-zA-Z0-9_]+$/.test(username)) {
-      return res.status(400).json({ error: '非法用户名' });
+      throw BadRequest('用户名格式非法', 'INVALID_USERNAME');
+    }
+    if (!['csv', 'pdf'].includes(type)) {
+      throw BadRequest('type 仅支持 csv 或 pdf', 'INVALID_EXPORT_TYPE');
+    }
+    // 鉴权：JWT 必须挂载，且只能导出自己的数据
+    if (req.user?.username !== username) {
+      throw Forbidden('禁止导出他人数据', 'OWNERSHIP_VIOLATION');
     }
 
     const logTable = `${username}_log`;
@@ -32,9 +40,8 @@ export const exportLogs = async (req, res, next) => {
     const params = logId ? [logId] : [];
 
     db.query(sql, params, (err, results) => {
-      if (err || !results.length) {
-        return res.status(500).json({ error: '查询日志失败或无数据' });
-      }
+      if (err) return next(err);
+      if (!results.length) return next(NotFound('没有可导出的日志数据', 'NO_DATA_TO_EXPORT'));
 
       const now = Date.now();
       const filename = logId ? `log_${logId}.${type}` : `logs_export_${now}.${type}`;

@@ -40,13 +40,13 @@ async function runPool(limit, tasks, onProgress) {
   });
 }
 
-// 与后端交互
+// 与后端交互（资源命名统一复数 uploads + RESTful 化的端点名）
 export async function checkFile(api, fileHash, filename) {
-  const { data } = await api.post('/api/upload/check', { fileHash, filename });
+  const { data } = await api.post('/api/uploads/check', { fileHash, filename });
   return data; // {exists:boolean, url?:string}
 }
 export async function getUploadedChunks(api, fileHash) {
-  const { data } = await api.get(`/api/upload/status?fileHash=${fileHash}`);
+  const { data } = await api.get(`/api/uploads/status`, { params: { fileHash } });
   return data; // {uploaded:[index,...]}
 }
 export async function uploadChunk(api, { fileHash, index, chunk, filename }) {
@@ -55,10 +55,10 @@ export async function uploadChunk(api, { fileHash, index, chunk, filename }) {
   form.append('index', index);
   form.append('filename', filename);
   form.append('chunk', chunk);
-  await api.post('/api/upload/chunk', form);
+  await api.post('/api/uploads/chunks', form);
 }
 export async function mergeChunks(api, { fileHash, filename, total, mime }) {
-  const { data } = await api.post('/api/upload/merge', { fileHash, filename, total, mime });
+  const { data } = await api.post('/api/uploads/complete', { fileHash, filename, total, mime });
   return data; // {url}
 }
 

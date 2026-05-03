@@ -1,16 +1,18 @@
 import { verifyToken } from '../utils/jwt.js';
+import { Unauthorized } from '../utils/apiResponse.js';
 
-export function authMiddleware(req, res, next) {
-  const authHeader = req.headers['authorization']; // 从请求头取 token
- if (!authHeader?.startsWith('Bearer ')) {
-    return res.status(401).json({ success: false, message: '缺少或格式错误的 Token' });
+export function authMiddleware(req, _res, next) {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader?.startsWith('Bearer ')) {
+    return next(Unauthorized('缺少或格式错误的 Token', 'AUTH_MISSING_TOKEN'));
   }
 
   const token = authHeader.split(' ')[1];
   const decoded = verifyToken(token);
   if (!decoded) {
-    return res.status(401).json({ success: false, message: 'Token 无效或已过期' });
+    return next(Unauthorized('Token 无效或已过期', 'AUTH_INVALID_TOKEN'));
   }
-  req.user = decoded; // 在请求对象中保存用户信息
-  next(); // 放行
+
+  req.user = decoded;
+  next();
 }

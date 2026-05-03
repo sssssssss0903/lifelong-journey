@@ -44,7 +44,8 @@ export function useUserData(username, type = 'default') {
           limit: pageSize,
         });
         setLogs(res.data.logs);
-        setTotal(res.data.total);
+        // 后端响应结构：{ logs, pagination: { total, totalPages, page, limit } }
+        setTotal(res.data.pagination?.total ?? res.data.total ?? 0);
       } catch (err) {
         console.error('获取日志失败:', err);
       }
